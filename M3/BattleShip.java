@@ -37,8 +37,8 @@ public class BattleShip extends Ship implements Variables,MilitaryUnit{
 		// TODO Auto-generated method stub
 		return this.CHANCE_ATTACK_AGAIN_BATTLESHIP;
 	}
-	public void cambiarArmadura(int tecnologia) {
-		this.setInitialArmor(ARMOR_BATTLESHIP + (tecnologia*PLUS_ARMOR_BATTLESHIP_BY_TECHNOLOGY)*ARMOR_BATTLESHIP/100);     
-		this.setBaseDamage(BASE_DAMAGE_BATTLESHIP+(tecnologia*PLUS_ATTACK_BATTLESHIP_BY_TECHNOLOGY)*BASE_DAMAGE_BATTLESHIP/100);
+	public void changeArmorAndDamage(int tecnoDefense, int tecnoAtack) {
+		this.setInitialArmor(ARMOR_BATTLESHIP + (tecnoDefense*PLUS_ARMOR_BATTLESHIP_BY_TECHNOLOGY)*ARMOR_BATTLESHIP/100);     
+		this.setBaseDamage(BASE_DAMAGE_BATTLESHIP+(tecnoAtack*PLUS_ATTACK_BATTLESHIP_BY_TECHNOLOGY)*BASE_DAMAGE_BATTLESHIP/100);
 	}
 }
