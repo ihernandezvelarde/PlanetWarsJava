@@ -155,6 +155,46 @@ public class Battle implements Variables {
 	
 	private void loseShip(MilitaryUnit ship, int side) {
 		ResourcesLosses[side][0] += ship.getMetalCost();
+		ResourcesLosses[side][1] += ship.getDeuteriumCost();
+		ResourcesLosses[side][2] += ship.getMetalCost() + 5*ship.getDeuteriumCost();
+		int type = 0;
+		switch (ship.getClass().getSimpleName()) {
+			case "LightHunter:":
+				type = 0;
+				break;
+			case "HeavyHunter":
+				type = 1;
+				break;
+			case "BattleShip":
+				type = 2;
+				break;
+			case "ArmoredShip":
+				type = 3;
+				break;
+			case "MissileLauncher":
+				type = 4;
+				break;
+			case "IonCannon":
+				type = 5;
+				break;
+			case "PlasmaCannon":
+				type = 6;
+				break;
+		}
+		if (side == 0) {
+			planetArmy[type].remove(ship);
+			actualNumberUnitsPlanet[type] -= 1;
+		} else {
+			enemyArmy[type].remove(ship);
+			actualNumberUnitsEnemy[type] -= 1;
+		}
 	}
+	
+	private void updateArmies() {
+		armies[0] = planetArmy;
+		armies[1] = enemyArmy;
+	}
+	
+	
 	
 }
