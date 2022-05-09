@@ -29,8 +29,8 @@ public class PlasmaCannon extends Defense implements MilitaryUnit{
     @Override
     public int getChanceAttackAgain() {return this.CHANCE_ATTACK_AGAIN_PLASMACANNON;}
 
-    public void changeStatsByTech(int tech){
-        this.setBaseDamage(BASE_DAMAGE_PLASMACANNON + (tech * PLUS_ATTACK_PLASMACANNON_BY_TECHNOLOGY)*BASE_DAMAGE_PLASMACANNON/100);
-        this.setInitialArmor(ARMOR_PLASMACANNON + (tech * PLUS_ARMOR_PLASMACANNON_BY_TECHNOLOGY)*ARMOR_PLASMACANNON/100);
+    public void changeStatsByTech(int techArmor,int techDamage){
+        this.setBaseDamage(BASE_DAMAGE_PLASMACANNON + (techDamage * PLUS_ATTACK_PLASMACANNON_BY_TECHNOLOGY)*BASE_DAMAGE_PLASMACANNON/100);
+        this.setInitialArmor(ARMOR_PLASMACANNON + (techArmor * PLUS_ARMOR_PLASMACANNON_BY_TECHNOLOGY)*ARMOR_PLASMACANNON/100);
     }
 }
