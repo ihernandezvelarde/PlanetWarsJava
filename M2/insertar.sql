@@ -1,7 +1,7 @@
 create or replace procedure insert_table as
 insertar varchar(255);
 begin
-insertar := 'values (1, ''Light Hunter'',3000,0,50,400,400,80,3,20)';
+insertar := 'insert into ship values (1, ''Light Hunter'',3000,0,50,400,400,80,3,20)';
 execute immediate insertar;
 
 insertar := '
