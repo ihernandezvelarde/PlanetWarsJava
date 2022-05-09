@@ -29,8 +29,8 @@ public class IonCannon extends Defense implements MilitaryUnit{
     @Override
     public int getChanceAttackAgain() {return this.CHANCE_ATTACK_AGAIN_IONCANNON;}
 
-    public void changeStatsByTech(int tech){
-        this.setBaseDamage(BASE_DAMAGE_IONCANNON + (tech * PLUS_ATTACK_IONCANNON_BY_TECHNOLOGY)*BASE_DAMAGE_IONCANNON/100);
-        this.setInitialArmor(ARMOR_IONCANNON + (tech * PLUS_ARMOR_IONCANNON_BY_TECHNOLOGY)*ARMOR_IONCANNON/100);
+    public void changeStatsByTech(int techArmor,int techDamage){
+        this.setBaseDamage(BASE_DAMAGE_MISSILELAUNCHER + (techDamage * PLUS_ATTACK_MISSILELAUNCHER_BY_TECHNOLOGY)*BASE_DAMAGE_MISSILELAUNCHER/100);
+        this.setInitialArmor(ARMOR_MISSILELAUNCHER + (techArmor * PLUS_ARMOR_MISSILELAUNCHER_BY_TECHNOLOGY)*ARMOR_MISSILELAUNCHER/100);
     }
 }
