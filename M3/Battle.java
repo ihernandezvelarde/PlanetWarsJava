@@ -123,6 +123,8 @@ public class Battle implements Variables {
 				wasteMetalDeuterium[0] = defender.getMetalCost()*PERCENTATGE_WASTE;
 				wasteMetalDeuterium[1] = defender.getDeuteriumCost()*PERCENTATGE_WASTE;
 			}
+		
+		
 			
 			
 		}
@@ -133,16 +135,16 @@ public class Battle implements Variables {
 	
 	private int continueBattle() {
 		int total_units_planet = 0;
-		for (int i = 0; i < planetArmy.length; i++) {
-			total_units_planet += planetArmy[i].size();
+		for (int i = 0; i < actualNumberUnitsPlanet.length; i++) {
+			total_units_planet += actualNumberUnitsPlanet[i];
 		}
 		if (total_units_planet < initialNumberUnitsPlanet*0.2) {
 			return 1;
 		}
 		
 		int total_units_enemy = 0;
-		for (int i = 0; i < enemyArmy.length; i++) {
-			total_units_planet += enemyArmy[i].size();
+		for (int i = 0; i < actualNumberUnitsEnemy.length; i++) {
+			total_units_planet += actualNumberUnitsEnemy[i];
 		}
 		if (total_units_planet < initialNumberUnitsEnemy*0.2) {
 			return 2;
@@ -150,4 +152,9 @@ public class Battle implements Variables {
 		
 		return 0;
 	}
+	
+	private void loseShip(MilitaryUnit ship, int side) {
+		ResourcesLosses[side][0] += ship.getMetalCost();
+	}
+	
 }
