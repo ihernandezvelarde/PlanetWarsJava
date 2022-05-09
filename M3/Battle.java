@@ -9,7 +9,7 @@ public class Battle implements Variables {
 	private String battleDevelopment;
 	int[][] initialCostFleet;
 	int initialNumberUnitsPlanet, initialNumberUnitsEnemy;
-	int[] wasteMetalDeuterium = new int[7];
+	int[] wasteMetalDeuterium = new int[2];
 	int[][] ResourcesLosses = new int[2][3];
 	int[][] initialArmies = new int[2][7];
 	int[] actualNumberUnitsPlanet = new int[7];
@@ -22,6 +22,8 @@ public class Battle implements Variables {
 			initialArmies [0][i] = planetInitialArmy[i].size();
 			totalPlanet += planetInitialArmy[i].size();
 			armies [0][i] = planetInitialArmy[i];
+			// Com que l'enemic nomes te naus en el seu exercit, s'emplena la seva fila de la matriu fins a
+			// la columna 7
 			if (i <= 3) {
 				initialArmies [1][i] = enemyInitialArmy[i].size();
 				totalEnemy += enemyInitialArmy[i].size();
@@ -103,17 +105,49 @@ public class Battle implements Variables {
 	}
 	
 	private String attack(MilitaryUnit attacker, MilitaryUnit defender) {
-		String message = attacker.getClass() + " attacks " + defender.getClass();
+		String message = attacker.getClass().getSimpleName() + " attacks " + defender.getClass();
 		int dmg = attacker.attack();
-		message += "\n" + attacker.getClass() + " deals " + dmg + " damage";
+		message += "\n" + attacker.getClass().getSimpleName() + " deals " + dmg + " damage";
 		defender.takeDamage(dmg);
-		message += "\n" + defender.getClass() + " has " + defender.getActualArmor() + " remaining armor";
+		message += "\n" + defender.getClass().getSimpleName() + " has " + defender.getActualArmor() + " remaining armor";
+		
+		if (defender.getActualArmor() <= 0) {
+			int chance_waste = (int) (Math.random()*100);
+			if ((defender instanceof LightHunter && chance_waste <= CHANCE_GENERATNG_WASTE_LIGTHHUNTER) ||
+					(defender instanceof HeavyHunter && chance_waste <= CHANCE_GENERATNG_WASTE_HEAVYHUNTER) ||
+					(defender instanceof BattleShip && chance_waste <= CHANCE_GENERATNG_WASTE_BATTLESHIP) ||
+					(defender instanceof ArmoredShip && chance_waste <= CHANCE_GENERATNG_WASTE_ARMOREDSHIP) ||
+					(defender instanceof MissileLauncher && chance_waste <= CHANCE_GENERATNG_WASTE_MISSILELAUNCHER) ||
+					(defender instanceof IonCannon && chance_waste <= CHANCE_GENERATNG_WASTE_IONCANNON) ||
+					(defender instanceof PlasmaCannon && chance_waste <= CHANCE_GENERATNG_WASTE_PLASMACANNON)) {
+				wasteMetalDeuterium[0] = defender.getMetalCost()*PERCENTATGE_WASTE;
+				wasteMetalDeuterium[1] = defender.getDeuteriumCost()*PERCENTATGE_WASTE;
+			}
+			
+			
+		}
+		
+		
 		return message;
 	}
 	
 	private int continueBattle() {
-		int total_units = 0;
-		for (int i = 0; i < )
+		int total_units_planet = 0;
+		for (int i = 0; i < planetArmy.length; i++) {
+			total_units_planet += planetArmy[i].size();
+		}
+		if (total_units_planet < initialNumberUnitsPlanet*0.2) {
+			return 1;
+		}
+		
+		int total_units_enemy = 0;
+		for (int i = 0; i < enemyArmy.length; i++) {
+			total_units_planet += enemyArmy[i].size();
+		}
+		if (total_units_planet < initialNumberUnitsEnemy*0.2) {
+			return 2;
+		}
+		
+		return 0;
 	}
-}
 }
