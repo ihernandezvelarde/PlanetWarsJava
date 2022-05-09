@@ -13,5 +13,5 @@ Autores:
     Erik Tamaño Santos: correo: etamanosantos.cf@iesesteveterradas.cat, telef: +34-688-888-888, linkedIn: linkedin.com/in/erik-tamaño-santos-72ab93230
     Irene Hernández Velarde: correo: ihernandezvelarde.cf@iesesteveterradas.cat, telef: +34-677-777-777, linkedIn: https://es.linkedin.com/in/irene-hern%C3%A1ndez-velarde-3bb07621a
     Ismael Morillo Labour: correo: jmorillolabour.cf@iesesteveterradas.cat, telef: +34-610-101-101, linkedIn: https://www.linkedin.com/in/ismael-morillo-316ab9230/
-     Rafael Puerta Chamorro: correo: rpuertachamorro.cf@iesesteveterradas.cat, telef: +34- 699-999-999.
+    Rafael Puerta Chamorro: correo: rpuertachamorro.cf@iesesteveterradas.cat, telef: +34- 699-999-999.
 
