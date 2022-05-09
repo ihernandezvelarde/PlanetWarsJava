@@ -35,9 +35,9 @@ public class LightHunter extends Ship implements Variables, MilitaryUnit{
 		// TODO Auto-generated method stub
 	return this.CHANCE_ATTACK_AGAIN_LIGTHHUNTER;	
 	}
-	public void cambiarArmadura(int tecnologia) {
-		this.setInitialArmor(ARMOR_LIGTHHUNTER + (tecnologia*PLUS_ARMOR_LIGTHHUNTER_BY_TECHNOLOGY)*ARMOR_LIGTHHUNTER/100);
-		this.setBaseDamage(BASE_DAMAGE_LIGTHHUNTER+(tecnologia*PLUS_ATTACK_LIGTHHUNTER_BY_TECHNOLOGY)*BASE_DAMAGE_LIGTHHUNTER/100);
+	public void changeArmorAndDamage(int tecnoDefense, int tecnoAtack) {
+		this.setInitialArmor(ARMOR_LIGTHHUNTER + (tecnoDefense*PLUS_ARMOR_LIGTHHUNTER_BY_TECHNOLOGY)*ARMOR_LIGTHHUNTER/100);
+		this.setBaseDamage(BASE_DAMAGE_LIGTHHUNTER+(tecnoAtack*PLUS_ATTACK_LIGTHHUNTER_BY_TECHNOLOGY)*BASE_DAMAGE_LIGTHHUNTER/100);
 	}
    
 }
