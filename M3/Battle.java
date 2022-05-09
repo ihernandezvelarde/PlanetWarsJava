@@ -3,6 +3,7 @@ package PlanetWars;
 import java.util.ArrayList;
 
 public class Battle implements Variables {
+	
 	private ArrayList<MilitaryUnit>[] planetArmy = new ArrayList[7];
 	private ArrayList<MilitaryUnit>[] enemyArmy = new ArrayList[4];
 	private ArrayList[][] armies = new ArrayList[2][7];
@@ -10,7 +11,7 @@ public class Battle implements Variables {
 	int[][] initialCostFleet;
 	int initialNumberUnitsPlanet, initialNumberUnitsEnemy;
 	int[] wasteMetalDeuterium = new int[2];
-	int[][] ResourcesLosses = new int[2][3];
+	int[][] resourcesLosses = new int[2][3];
 	int[][] initialArmies = new int[2][7];
 	int[] actualNumberUnitsPlanet = new int[7];
 	int[] actualNumberUnitsEnemy = new int[7];
@@ -122,10 +123,7 @@ public class Battle implements Variables {
 					(defender instanceof PlasmaCannon && chance_waste <= CHANCE_GENERATNG_WASTE_PLASMACANNON)) {
 				wasteMetalDeuterium[0] = defender.getMetalCost()*PERCENTATGE_WASTE;
 				wasteMetalDeuterium[1] = defender.getDeuteriumCost()*PERCENTATGE_WASTE;
-			}
-		
-		
-			
+			}	
 			
 		}
 		
@@ -135,28 +133,30 @@ public class Battle implements Variables {
 	
 	private int continueBattle() {
 		int total_units_planet = 0;
+		int total_units_enemy = 0;
 		for (int i = 0; i < actualNumberUnitsPlanet.length; i++) {
 			total_units_planet += actualNumberUnitsPlanet[i];
+			if (i <= 3) {
+				total_units_enemy += actualNumberUnitsEnemy[i];
+			}
 		}
-		if (total_units_planet < initialNumberUnitsPlanet*0.2) {
+		if (total_units_planet < initialNumberUnitsPlanet*0.2 || total_units_planet < initialNumberUnitsPlanet*0.2) {
 			return 1;
 		}
-		
-		int total_units_enemy = 0;
-		for (int i = 0; i < actualNumberUnitsEnemy.length; i++) {
-			total_units_planet += actualNumberUnitsEnemy[i];
-		}
-		if (total_units_planet < initialNumberUnitsEnemy*0.2) {
-			return 2;
-		}
-		
 		return 0;
 	}
 	
+	private int getWinner() {
+		if (resourcesLosses[0][2] < resourcesLosses[1][2]) {
+			return 0;
+		}
+		return 1;
+	}
+	
 	private void loseShip(MilitaryUnit ship, int side) {
-		ResourcesLosses[side][0] += ship.getMetalCost();
-		ResourcesLosses[side][1] += ship.getDeuteriumCost();
-		ResourcesLosses[side][2] += ship.getMetalCost() + 5*ship.getDeuteriumCost();
+		resourcesLosses[side][0] += ship.getMetalCost();
+		resourcesLosses[side][1] += ship.getDeuteriumCost();
+		resourcesLosses[side][2] += ship.getMetalCost() + 5*ship.getDeuteriumCost();
 		int type = 0;
 		switch (ship.getClass().getSimpleName()) {
 			case "LightHunter:":
@@ -194,7 +194,4 @@ public class Battle implements Variables {
 		armies[0] = planetArmy;
 		armies[1] = enemyArmy;
 	}
-	
-	
-	
 }
