@@ -32,8 +32,8 @@ public class HeavyHunter extends Ship implements Variables,MilitaryUnit{
 		return this.CHANCE_ATTACK_AGAIN_HEAVYHUNTER;
 	}
 	
-	public void cambiarArmadura(int tecnologia) {
-		this.setInitialArmor(ARMOR_HEAVYHUNTER + (tecnologia*PLUS_ARMOR_HEAVYHUNTER_BY_TECHNOLOGY)*ARMOR_HEAVYHUNTER/100);     
-		this.setBaseDamage(BASE_DAMAGE_HEAVYHUNTER+(tecnologia*PLUS_ATTACK_HEAVYHUNTER_BY_TECHNOLOGY)*BASE_DAMAGE_HEAVYHUNTER/100);
+	public void changeArmorAndDamage(int tecnoDefense, int tecnoAtack) {
+		this.setInitialArmor(ARMOR_HEAVYHUNTER + (tecnoDefense*PLUS_ARMOR_HEAVYHUNTER_BY_TECHNOLOGY)*ARMOR_HEAVYHUNTER/100);     
+		this.setBaseDamage(BASE_DAMAGE_HEAVYHUNTER+(tecnoAtack*PLUS_ATTACK_HEAVYHUNTER_BY_TECHNOLOGY)*BASE_DAMAGE_HEAVYHUNTER/100);
 	}
 }
