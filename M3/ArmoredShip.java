@@ -37,8 +37,8 @@ public class ArmoredShip extends Ship implements Variables,MilitaryUnit{
 		// TODO Auto-generated method stub
 		return this.CHANCE_ATTACK_AGAIN_ARMOREDSHIP;
 	}
-	public void cambiarArmadura(int tecnologia) {
-		this.setInitialArmor(ARMOR_ARMOREDSHIP + (tecnologia*PLUS_ARMOR_ARMOREDSHIP_BY_TECHNOLOGY)*ARMOR_ARMOREDSHIP/100);     
-		this.setBaseDamage(BASE_DAMAGE_ARMOREDSHIP+(tecnologia*PLUS_ATTACK_ARMOREDSHIP_BY_TECHNOLOGY)*BASE_DAMAGE_ARMOREDSHIP/100);
+	public void changeArmorAndDamage(int tecnoDefense, int tecnoAtack) {
+		this.setInitialArmor(ARMOR_ARMOREDSHIP + (tecnoDefense*PLUS_ARMOR_ARMOREDSHIP_BY_TECHNOLOGY)*ARMOR_ARMOREDSHIP/100);     
+		this.setBaseDamage(BASE_DAMAGE_ARMOREDSHIP+(tecnoAtack*PLUS_ATTACK_ARMOREDSHIP_BY_TECHNOLOGY)*BASE_DAMAGE_ARMOREDSHIP/100);
 	}
 }
