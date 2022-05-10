@@ -3,37 +3,72 @@ package PlanetWars;
 import java.util.ArrayList;
 
 public class Battle implements Variables {
-	
 	private ArrayList<MilitaryUnit>[] planetArmy = new ArrayList[7];
 	private ArrayList<MilitaryUnit>[] enemyArmy = new ArrayList[4];
 	private ArrayList[][] armies = new ArrayList[2][7];
 	private String battleDevelopment;
-	int[][] initialCostFleet;
+	int[][] initialCostFleet = new int[2][2];
 	int initialNumberUnitsPlanet, initialNumberUnitsEnemy;
 	int[] wasteMetalDeuterium = new int[2];
 	int[][] resourcesLosses = new int[2][3];
-	int[][] initialArmies = new int[2][7];
+	int[][] initialArmies = new int[2][2];
 	int[] actualNumberUnitsPlanet = new int[7];
 	int[] actualNumberUnitsEnemy = new int[7];
 	
-	private void initInitialArmies(ArrayList<MilitaryUnit>[] planetInitialArmy, ArrayList<MilitaryUnit>[] enemyInitialArmy) {
-		int totalPlanet = 0;
-		int totalEnemy = 0;
+	private int getTotalUnitsSquad(ArrayList<MilitaryUnit> squad) {
+		int total = 0;
+		for (int i = 0; i < squad.size(); i++) {
+			total += squad.get(i).getQuantity();
+		}
+		return total;
+	}
+	
+	private int getTotalUnitsFleet(ArrayList<MilitaryUnit>[] fleet) {
+		int total = 0;
+		for (int i = 0; i < fleet.length; i++) {
+			total += getTotalUnitsSquad(fleet[i]);
+		}
+		return total;
+	}
+	
+	private void initVariables(ArrayList<MilitaryUnit>[] planetInitialArmy, ArrayList<MilitaryUnit>[] enemyInitialArmy) {
+		initialNumberUnitsPlanet = getTotalUnitsFleet(planetInitialArmy);
+		initialNumberUnitsEnemy = getTotalUnitsFleet(enemyInitialArmy);
+		int total_cost_metal_planet = 0;
+		int total_cost_deuterium_planet = 0;
+		int total_cost_metal_enemy = 0;
+		int total_cost_deuterium_enemy = 0;
+		
+		// Recorre les arrays d'exercits per a comptar el nombre total de tropes (objectes) que hi ha a cada exercit
 		for (int i = 0; i < planetInitialArmy.length; i ++) {
-			initialArmies [0][i] = planetInitialArmy[i].size();
-			totalPlanet += planetInitialArmy[i].size();
-			armies [0][i] = planetInitialArmy[i];
+			initialArmies [0][i] = getTotalUnitsSquad(planetInitialArmy[i]);
+			actualNumberUnitsPlanet[i] = planetInitialArmy[i].size();
+			for (int j = 0; j < planetInitialArmy[i].size(); j++) {
+				total_cost_metal_planet += planetInitialArmy[i].get(j).getMetalCost();
+				total_cost_deuterium_planet += planetInitialArmy[i].get(j).getDeuteriumCost();
+			}
 			// Com que l'enemic nomes te naus en el seu exercit, s'emplena la seva fila de la matriu fins a
 			// la columna 7
 			if (i <= 3) {
-				initialArmies [1][i] = enemyInitialArmy[i].size();
-				totalEnemy += enemyInitialArmy[i].size();
-				armies [1][i] = enemyInitialArmy[i];
+				initialArmies [1][i] = getTotalUnitsSquad(enemyInitialArmy[i]);
+				actualNumberUnitsEnemy[i] = enemyInitialArmy[i].size();
+				
+				for (int j = 0; j < enemyInitialArmy[i].size(); i++) {
+					total_cost_metal_enemy += enemyInitialArmy[i].get(j).getMetalCost();
+					total_cost_deuterium_enemy += enemyInitialArmy[i].get(j).getDeuteriumCost();
+				}
 			}
+			
+			initialCostFleet[0][0] = total_cost_metal_planet;
+			initialCostFleet[0][1] = total_cost_deuterium_planet;
+			initialCostFleet[1][0] = total_cost_metal_enemy;
+			initialCostFleet[1][1] = total_cost_deuterium_enemy;
 		}
 		
-		initialNumberUnitsPlanet = totalPlanet;
-		initialNumberUnitsEnemy = totalEnemy;
+		planetArmy = planetInitialArmy;
+		enemyArmy = enemyInitialArmy;
+		armies[0] = planetArmy;
+		armies[1] = enemyArmy;
 	}
 	
 	private int getStartingTurn() {
@@ -73,11 +108,8 @@ public class Battle implements Variables {
 	}
 	
 	private MilitaryUnit getDefender(int turn) {
-		int totalChances = 0;
 		if (turn == 0) {
-			for (int i = 0; i < enemyArmy.length; i++) {
-				totalChances += enemyArmy[i].size();
-			}
+			int totalChances = getTotalUnitsFleet(enemyArmy);
 			
 			int defender = (int) (Math.random()*totalChances);
 			
@@ -89,9 +121,7 @@ public class Battle implements Variables {
 			}
 			
 		} else {
-			for (int i = 0; i < planetArmy.length; i++) {
-				totalChances += planetArmy[i].size();
-			}
+			int totalChances = getTotalUnitsFleet(planetArmy);
 			
 			int defender = (int) (Math.random()*totalChances);
 			
@@ -190,8 +220,5 @@ public class Battle implements Variables {
 		}
 	}
 	
-	private void updateArmies() {
-		armies[0] = planetArmy;
-		armies[1] = enemyArmy;
-	}
+	
 }
