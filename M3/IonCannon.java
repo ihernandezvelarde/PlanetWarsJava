@@ -1,11 +1,26 @@
 package PlanetWars;
 
-public class IonCannon extends Defense implements MilitaryUnit{
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.SQLException;
 
-    IonCannon() {
-        super.setInitialArmor(ARMOR_IONCANNON);
-        super.setBaseDamage(BASE_DAMAGE_IONCANNON);
-        super.setArmor(ARMOR_IONCANNON);
+public class IonCannon extends Defense implements MilitaryUnit{
+    CallableStatement cst;
+
+    IonCannon(int tecnoDefense, int tecnoAtack,Connection con) {
+        InfoDefense def=new InfoDefense();
+
+        cst = def.getInfoDefense(con,2);
+
+        try {
+            cst.execute();
+            super.setInitialArmor(cst.getInt(6));
+            super.setBaseDamage(cst.getInt(8));
+            this.setArmor(this.getInitialArmor() + (tecnoDefense*PLUS_ARMOR_IONCANNON_BY_TECHNOLOGY)*this.getInitialArmor()/100);
+            this.setBaseDamage(this.getBaseDamage()+(tecnoAtack*PLUS_ATTACK_IONCANNON_BY_TECHNOLOGY)*this.getBaseDamage()/100);
+        }
+
+        catch (SQLException e) {e.printStackTrace();}
     }
 
     @Override
@@ -18,19 +33,20 @@ public class IonCannon extends Defense implements MilitaryUnit{
     public int getActualArmor() {return this.getArmor();}
 
     @Override
-    public int getMetalCost() {return this.METAL_COST_IONCANNON;}
-
-    @Override
-    public int getDeuteriumCost() {return this.DEUTERIUM_COST_IONCANNON;}
-
-    @Override
-    public int getChanceGeneratinWaste() {return this.CHANCE_GENERATNG_WASTE_IONCANNON;}
-
-    @Override
     public int getChanceAttackAgain() {return this.CHANCE_ATTACK_AGAIN_IONCANNON;}
 
-    public void changeStatsByTech(int techArmor,int techDamage){
-        this.setBaseDamage(BASE_DAMAGE_IONCANNON + (techDamage * PLUS_ATTACK_IONCANNON_BY_TECHNOLOGY)*BASE_DAMAGE_IONCANNON/100);
-        this.setInitialArmor(ARMOR_IONCANNON + (techArmor * PLUS_ARMOR_IONCANNON_BY_TECHNOLOGY)*ARMOR_IONCANNON/100);
-    }
+	@Override
+	public int getMetalCost() {
+        try {return cst.getInt(3);}
+        catch (SQLException e) {return 0;}
+	}
+
+	@Override
+	public int getDeuteriumCost() {
+        try {return cst.getInt(5);}
+        catch (SQLException e) {return 0;}
+	}
+
+	@Override
+	public int getChanceGeneratinWaste() {return CHANCE_GENERATNG_WASTE_IONCANNON;}
 }
