@@ -1,11 +1,27 @@
 package PlanetWars;
 
-public class PlasmaCannon extends Defense implements MilitaryUnit{
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.SQLException;
 
-    PlasmaCannon() {
-        super.setInitialArmor(ARMOR_PLASMACANNON);
-        super.setBaseDamage(BASE_DAMAGE_PLASMACANNON);
-        super.setArmor(ARMOR_PLASMACANNON);
+public class PlasmaCannon extends Defense implements MilitaryUnit{
+    CallableStatement cst;
+
+    PlasmaCannon(int tecnoDefense, int tecnoAtack,Connection con) {
+        InfoDefense def=new InfoDefense();
+
+        cst = def.getInfoDefense(con,3);
+
+        try {
+            cst.execute();
+            super.setInitialArmor(cst.getInt(6));
+            super.setBaseDamage(cst.getInt(8));
+            this.setArmor(this.getInitialArmor() + (tecnoDefense*PLUS_ARMOR_PLASMACANNON_BY_TECHNOLOGY)*this.getInitialArmor()/100);
+            this.setBaseDamage(this.getBaseDamage()+(tecnoAtack*PLUS_ATTACK_PLASMACANNON_BY_TECHNOLOGY)*this.getBaseDamage()/100);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -18,19 +34,20 @@ public class PlasmaCannon extends Defense implements MilitaryUnit{
     public int getActualArmor() {return this.getArmor();}
 
     @Override
-    public int getMetalCost() {return this.METAL_COST_PLASMACANNON;}
-
-    @Override
-    public int getDeuteriumCost() {return this.DEUTERIUM_COST_PLASMACANNON;}
-
-    @Override
-    public int getChanceGeneratinWaste() {return this.CHANCE_GENERATNG_WASTE_PLASMACANNON;}
-
-    @Override
     public int getChanceAttackAgain() {return this.CHANCE_ATTACK_AGAIN_PLASMACANNON;}
 
-    public void changeStatsByTech(int techArmor,int techDamage){
-        this.setBaseDamage(BASE_DAMAGE_PLASMACANNON + (techDamage * PLUS_ATTACK_PLASMACANNON_BY_TECHNOLOGY)*BASE_DAMAGE_PLASMACANNON/100);
-        this.setInitialArmor(ARMOR_PLASMACANNON + (techArmor * PLUS_ARMOR_PLASMACANNON_BY_TECHNOLOGY)*ARMOR_PLASMACANNON/100);
-    }
+	@Override
+	public int getMetalCost() {
+        try {return cst.getInt(3);}
+        catch (SQLException e) {return 0;}
+	}
+
+	@Override
+	public int getDeuteriumCost() {
+        try {return cst.getInt(5);}
+        catch (SQLException e) {return 0;}
+	}
+
+	@Override
+	public int getChanceGeneratinWaste() {return CHANCE_GENERATNG_WASTE_PLASMACANNON;}
 }
