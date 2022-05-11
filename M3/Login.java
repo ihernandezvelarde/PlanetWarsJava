@@ -21,29 +21,12 @@ class VentanaLogin extends JFrame {
     private JPasswordField password;
     private JPanel panelG,panelLogin;
     private JButton login,register;
-    private Connection con;
+    
 
-    public void conectar() {
-        String url = "jdbc:mySQL://localhost/farmville?serverTimezone=UTC";
-        String password = "Admin123-";
-        String user = "root";
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            System.out.println("Driver cargado correctamente.");
-            DriverManager.getConnection(url, user, password);
-            System.out.println("Conexion creada!!");
-
-        } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
-            System.out.println("Jo tio");
-        }
-    }
-
-    VentanaLogin(){
+    VentanaLogin(Connection con){
         iniciar();
-        conectar();
         setTitle("Inicio de sesión");
-
+        
         panelLogin = new JPanel();
         panelLogin.setOpaque(false);
 
@@ -84,7 +67,7 @@ class VentanaLogin extends JFrame {
                                         "Inicio de sesión",
                                         JOptionPane.INFORMATION_MESSAGE,
                                         null);
-                                new VentanaInicial();
+                                new VentanaInicial(con);
                             } else {
                                 JOptionPane.showMessageDialog(
                                         null,
@@ -92,7 +75,7 @@ class VentanaLogin extends JFrame {
                                         "Inicio de sesión",
                                         JOptionPane.INFORMATION_MESSAGE,
                                         null);
-                                new VentanaLogin();
+                                new VentanaLogin(con);
                             }
                         }
 
@@ -107,7 +90,7 @@ class VentanaLogin extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
-                new VentanaRegister();
+                new VentanaRegister(con);
             }
         });
 
@@ -121,10 +104,11 @@ class VentanaLogin extends JFrame {
         panelG.add(panelLogin);
 
         add(panelG,BorderLayout.CENTER);
+        this.setVisible(true);
     }
 
     public void iniciar(){
-        this.setVisible(true);
+        
         this.setIconImage(new ImageIcon("ico.png").getImage());
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(650,350);
@@ -141,27 +125,9 @@ class VentanaRegister extends JFrame{
     private JPasswordField password;
     private JPanel panelG,panelLogin;
     private JButton register,login;
-    private Connection con;
 
-    public void conectar() {
-        String url = "jdbc:mySQL://localhost/farmville?serverTimezone=UTC";
-        String password = "Admin123-";
-        String user = "root";
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            System.out.println("Driver cargado correctamente.");
-            DriverManager.getConnection(url, user, password);
-            System.out.println("Conexion creada!!");
-
-        } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
-            System.out.println("Jo tio");
-        }
-    }
-
-    VentanaRegister(){
+    VentanaRegister(Connection con){
         iniciar();
-        conectar();
 
         setTitle("Registro de usuario");
 
@@ -205,31 +171,39 @@ class VentanaRegister extends JFrame{
                     java.util.Date selectedDate = (Date) datePicker.getModel().getValue();
 
                     DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-                    String today = formatter.format(selectedDate);
 
-                    if (nombre.getText().isBlank() || selectedDate == null || String.valueOf(password.getPassword()).isBlank()) {
+                    if (selectedDate == null){
                         JOptionPane.showMessageDialog(null, "Rellené los campos", "Registro de usuario", JOptionPane.WARNING_MESSAGE, null);
+                    } else {
+                        String today = formatter.format(selectedDate);
+
+                        if (nombre.getText().isBlank() || selectedDate == null || String.valueOf(password.getPassword()).isBlank()) {
+                            JOptionPane.showMessageDialog(null, "Rellené los campos", "Registro de usuario", JOptionPane.WARNING_MESSAGE, null);
+                        }
+
+                        else {
+                            Statement stm = con.createStatement();
+                            String query = "select * from USU";
+                            ResultSet rs = stm.executeQuery(query);
+
+                            while (rs.next()) {
+                                if (nombre.getText() == rs.getString(2)) {
+                                    JOptionPane.showMessageDialog(null, "Ya existe un usuario similar", "Registro de usuario", JOptionPane.WARNING_MESSAGE, null);
+                                }
+                                else {
+                                    String insert = "insert into USU(Username,Birth_Date,Password) values(?,?,?)";
+                                    PreparedStatement pr_stm = con.prepareStatement(insert);
+
+                                    pr_stm.setString(2, nombre.getText());
+                                    pr_stm.setString(3, datePicker.getToolTipText());
+                                    pr_stm.setString(4, String.valueOf(password.getPassword()));
+
+                                    pr_stm.executeUpdate();}
+                            }}
                     }
 
-                    else {
-                        Statement stm = con.createStatement();
-                        String query = "select * from USU";
-                        ResultSet rs = stm.executeQuery(query);
 
-                        while (rs.next()) {
-                            if (nombre.getText() == rs.getString(2)) {
-                                JOptionPane.showMessageDialog(null, "Ya existe un usuario similar", "Registro de usuario", JOptionPane.WARNING_MESSAGE, null);
-                            }
-                            else {
-                                String insert = "insert into USU(Username,Birth_Date,Password) values(?,?,?)";
-                                PreparedStatement pr_stm = con.prepareStatement(insert);
-
-                                pr_stm.setString(2, nombre.getText());
-                                pr_stm.setString(3, datePicker.getToolTipText());
-                                pr_stm.setString(4, String.valueOf(password.getPassword()));
-
-                                pr_stm.executeUpdate();}
-                        }}}
+                }
 
                 catch(SQLException ex){ex.printStackTrace();}}
 
@@ -238,7 +212,7 @@ class VentanaRegister extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
-                new VentanaLogin();
+                new VentanaLogin(con);
             }
         });
 
