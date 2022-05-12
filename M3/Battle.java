@@ -157,6 +157,7 @@ public class Battle implements Variables {
 					(defender instanceof PlasmaCannon && chance_waste <= CHANCE_GENERATNG_WASTE_PLASMACANNON)) {
 				wasteMetalDeuterium[0] = defender.getMetalCost()*PERCENTATGE_WASTE;
 				wasteMetalDeuterium[1] = defender.getDeuteriumCost()*PERCENTATGE_WASTE;
+				
 			}	
 			
 		}
@@ -165,7 +166,7 @@ public class Battle implements Variables {
 		return message;
 	}
 	
-	private int continueBattle() {
+	private int checkArmies() {
 		int total_units_planet = 0;
 		int total_units_enemy = 0;
 		for (int i = 0; i < actualNumberUnitsPlanet.length; i++) {
@@ -187,10 +188,10 @@ public class Battle implements Variables {
 		return 1;
 	}
 	
-	private void loseShip(MilitaryUnit ship, int side) {
-		resourcesLosses[side][0] += ship.getMetalCost();
-		resourcesLosses[side][1] += ship.getDeuteriumCost();
-		resourcesLosses[side][2] += ship.getMetalCost() + 5*ship.getDeuteriumCost();
+	private void loseShip(MilitaryUnit ship, int turn) {
+		resourcesLosses[turn][0] += ship.getMetalCost();
+		resourcesLosses[turn][1] += ship.getDeuteriumCost();
+		resourcesLosses[turn][2] += ship.getMetalCost() + 5*ship.getDeuteriumCost();
 		int type = 0;
 		switch (ship.getClass().getSimpleName()) {
 			case "LightHunter:":
@@ -215,13 +216,47 @@ public class Battle implements Variables {
 				type = 6;
 				break;
 		}
-		if (side == 0) {
+		if (turn == 0) {
+			if (ship.getQuantity() > 1) {
+				ship.setQuantity(ship.getQuantity() - 1);
+			}
 			planetArmy[type].remove(ship);
 			actualNumberUnitsPlanet[type] -= 1;
 		} else {
 			enemyArmy[type].remove(ship);
 			actualNumberUnitsEnemy[type] -= 1;
 		}
+	}
+	
+	public String startBattle() {
+		int turn = getStartingTurn();
+		String msg;
+		if (turn == 0) {
+			msg = "Planet attacks: " + "\n";
+		} else {
+			msg = "Enemy Fleet attacks: " + "\n";
+		}
+		MilitaryUnit attacker = getAttacker(turn);
+		MilitaryUnit defender = getDefender(turn);
+		
+		msg += attack(attacker, defender);
+		battleDevelopment = msg;
+		return msg;
+	}
+	
+	public String continueBattle(int turn) {
+		String msg;
+		if (turn == 0) {
+			msg = "Planet attacks: " + "\n";
+		} else {
+			msg = "Enemy Fleet attacks: " + "\n";
+		}
+		MilitaryUnit attacker = getAttacker(turn);
+		MilitaryUnit defender = getDefender(turn);
+		
+		msg += attack(attacker, defender);
+		battleDevelopment = msg;
+		return msg;
 	}
 
 	public ArrayList<MilitaryUnit>[] getPlanetArmy() {
