@@ -19,6 +19,7 @@ public class Battle implements Variables {
 		initVariables(planetArmy, enemyArmy);
 	}
 	
+	// Funcio que retorna la quantitat total d'unitats d'un mateix tipus
 	private int getTotalUnitsSquad(ArrayList<MilitaryUnit> squad) {
 		int total = 0;
 		for (int i = 0; i < squad.size(); i++) {
@@ -27,6 +28,7 @@ public class Battle implements Variables {
 		return total;
 	}
 	
+	// Funcio que retorna la quantitat total d'unitats d'un mateix exercit
 	private int getTotalUnitsFleet(ArrayList<MilitaryUnit>[] fleet) {
 		int total = 0;
 		for (int i = 0; i < fleet.length; i++) {
@@ -85,25 +87,43 @@ public class Battle implements Variables {
 		// S'escull un nombre aleatori entre 0 i 100 perque 
 		// els valors totals de les Arrays de probabilitat, tant les de jugador com les d'enemic,
 		// equivalen a 100
-		int attacker = (int) (Math.random()*100);
+		int attacking_squad = (int) (Math.random()*100);
 		if (turn == 0) {
 			for (int i = 0; i < planetArmy.length; i++) {
 				// Es resta la probabilitat d'atacar de cada grup al nombre escollit aleatoriament
-				attacker -= CHANCE_ATTACK_PLANET_UNITS[i];
+				attacking_squad -= CHANCE_ATTACK_PLANET_UNITS[i];
 				// Si el nombre resultant a la resta es igual o menor a 0, s'escull una tropa aleatoria
 				// entre les de l'ArrayList del grup
-				if (attacker <= 0) {
-					return planetArmy[i].get((int) (Math.random()*planetArmy[i].size()));
+				if (attacking_squad <= 0) {
+					// Es selecciona un nombre aleatori entre 0 i el nombre total d'unitats del mateix tipus
+					int attacker = (int) (Math.random()*getTotalUnitsSquad(planetArmy[i]));
+					for (int j = 0; j < planetArmy[i].size(); i++) {
+						// Es resta la quantitat de tropes de cada nivell al nombre escollit aleatoriament
+						attacker -= planetArmy[i].get(j).getQuantity();
+						// Si el nombre resultant a la resta es igual o menor a 0, s'escull la tropa d'aquest nivell
+						if (attacker <= 0) {
+							return planetArmy[i].get(j);
+						}
+					}
+					
 				}
 			}
 		} else {
 			for (int i = 0; i < enemyArmy.length; i++) {
 				// Es resta la probabilitat d'atacar de cada grup al nombre escollit aleatoriament
-				attacker -= CHANCE_ATTACK_ENEMY_UNITS[i];
+				attacking_squad -= CHANCE_ATTACK_ENEMY_UNITS[i];
 				// Si el nombre resultant a la resta es igual o menor a 0, s'escull una tropa aleatoria
 				// entre les de l'ArrayList del grup
-				if (attacker <= 0) {
-					return enemyArmy[i].get((int) (Math.random()*enemyArmy[i].size()));
+				if (attacking_squad <= 0) {
+					int attacker = (int) (Math.random()*getTotalUnitsSquad(planetArmy[i]));
+					for (int j = 0; j < planetArmy[i].size(); i++) {
+						// Es resta la quantitat de tropes de cada nivell al nombre escollit aleatoriament
+						attacker -= enemyArmy[i].get(j).getQuantity();
+						// Si el nombre resultant a la resta es igual o menor a 0, s'escull la tropa d'aquest nivell
+						if (attacker <= 0) {
+							return enemyArmy[i].get(j);
+						}
+					}
 				}
 			}
 		}
@@ -113,33 +133,57 @@ public class Battle implements Variables {
 	
 	private MilitaryUnit getDefender(int turn) {
 		if (turn == 0) {
+			// Obte el nombre total d'unitats en l'exercit per a calcular les probabilitats
 			int totalChances = getTotalUnitsFleet(enemyArmy);
 			
-			int defender = (int) (Math.random()*totalChances);
+			// S'escull un nombre aleatori entre 0 i el nombre total d'unitats
+			int defending_squad = (int) (Math.random()*totalChances);
 			
 			for (int i = 0; i < enemyArmy.length; i++) {
-				defender -= enemyArmy[i].size();
-				if (defender <= 0) {
-					return enemyArmy[i].get((int) (Math.random()*enemyArmy[i].size()));
+				// Es resta la quantitat de cada grup al nombre escollit aleatoriament
+				defending_squad -= getTotalUnitsSquad(enemyArmy[i]);
+				if (defending_squad <= 0) {
+					// S'escull un nombre aleatori entre 0 i el nombre total d'unitats del mateix tipus
+					int defender = (int) (Math.random()*getTotalUnitsSquad(enemyArmy[i]));
+					for (int j = 0; j < enemyArmy[i].size(); i++) {
+						// Es resta la quantitat de tropes de cada nivell al nombre escollit aleatoriament
+						defender -= enemyArmy[i].get(j).getQuantity();
+						// Si el nombre resultant es menor o igual a 0, s'escull la tropa d'aquest nivell
+						if (defender <= 0) {
+							return enemyArmy[i].get(j);
+						}
+					}
 				}
 			}
 			
 		} else {
+			// Obte el nombre total d'unitats en l'exercit per a calcular les probabilitats
 			int totalChances = getTotalUnitsFleet(planetArmy);
 			
-			int defender = (int) (Math.random()*totalChances);
+			// S'escull un nombre aleatori entre 0 i el nombre total d'unitats
+			int defending_squad = (int) (Math.random()*totalChances);
 			
 			for (int i = 0; i < planetArmy.length; i++) {
-				defender -= planetArmy[i].size();
-				if (defender <= 0) {
-					return planetArmy[i].get((int) (Math.random()*enemyArmy[i].size()));
+				// Es resta la quantitat de cada grup al nombre escollit aleatoriament
+				defending_squad -= getTotalUnitsSquad(planetArmy[i]);
+				if (defending_squad <= 0) {
+					// S'escull un nombre aleatori entre 0 i el nombre total d'unitats del mateix tipus
+					int defender = (int) (Math.random()*getTotalUnitsSquad(planetArmy[i]));
+					for (int j = 0; j < planetArmy[i].size(); i++) {
+						// Es resta la quantitat de tropes de cada nivell al nombre escollit aleatoriament
+						defender -= planetArmy[i].get(j).getQuantity();
+						// Si el nombre resultant es menor o igual a 0, s'escull la tropa d'aquest nivell
+						if (defender <= 0) {
+							return planetArmy[i].get(j);
+						}
+					}
 				}
 			}
 		}
 		return null;
 	}
 	
-	private String attack(MilitaryUnit attacker, MilitaryUnit defender) {
+	private String attack(MilitaryUnit attacker, MilitaryUnit defender, int turn) {
 		String message = attacker.getClass().getSimpleName() + " attacks " + defender.getClass();
 		int dmg = attacker.attack();
 		message += "\n" + attacker.getClass().getSimpleName() + " deals " + dmg + " damage";
@@ -157,7 +201,7 @@ public class Battle implements Variables {
 					(defender instanceof PlasmaCannon && chance_waste <= CHANCE_GENERATNG_WASTE_PLASMACANNON)) {
 				wasteMetalDeuterium[0] = defender.getMetalCost()*PERCENTATGE_WASTE;
 				wasteMetalDeuterium[1] = defender.getDeuteriumCost()*PERCENTATGE_WASTE;
-				
+				message += "\n" + loseShip(defender, turn);
 			}	
 			
 		}
@@ -188,7 +232,7 @@ public class Battle implements Variables {
 		return 1;
 	}
 	
-	private void loseShip(MilitaryUnit ship, int turn) {
+	private String loseShip(MilitaryUnit ship, int turn) {
 		resourcesLosses[turn][0] += ship.getMetalCost();
 		resourcesLosses[turn][1] += ship.getDeuteriumCost();
 		resourcesLosses[turn][2] += ship.getMetalCost() + 5*ship.getDeuteriumCost();
@@ -219,13 +263,22 @@ public class Battle implements Variables {
 		if (turn == 0) {
 			if (ship.getQuantity() > 1) {
 				ship.setQuantity(ship.getQuantity() - 1);
+				ship.resetArmor();
+			} else {
+				planetArmy[type].remove(ship);
 			}
-			planetArmy[type].remove(ship);
-			actualNumberUnitsPlanet[type] -= 1;
+				actualNumberUnitsPlanet[type] -= 1;
 		} else {
-			enemyArmy[type].remove(ship);
+			if (ship.getQuantity() > 1) {
+				ship.setQuantity(ship.getQuantity() - 1);
+				ship.resetArmor();
+			} else {
+				enemyArmy[type].remove(ship);
+			}
 			actualNumberUnitsEnemy[type] -= 1;
 		}
+		
+		return ship.getClass().getSimpleName() + " has been destroyed";
 	}
 	
 	public String startBattle() {
@@ -239,7 +292,7 @@ public class Battle implements Variables {
 		MilitaryUnit attacker = getAttacker(turn);
 		MilitaryUnit defender = getDefender(turn);
 		
-		msg += attack(attacker, defender);
+		msg += attack(attacker, defender, turn);
 		battleDevelopment = msg;
 		return msg;
 	}
@@ -254,7 +307,7 @@ public class Battle implements Variables {
 		MilitaryUnit attacker = getAttacker(turn);
 		MilitaryUnit defender = getDefender(turn);
 		
-		msg += attack(attacker, defender);
+		msg += attack(attacker, defender, turn);
 		battleDevelopment = msg;
 		return msg;
 	}
