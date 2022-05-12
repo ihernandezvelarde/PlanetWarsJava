@@ -4,6 +4,8 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -15,6 +17,8 @@ import javax.swing.border.Border;
 import javax.swing.plaf.BorderUIResource;
 
 public class BattleScreen extends JFrame {
+	
+	Battle battle;
 	
 	private JPanel marcador = new JPanel();
 	private JPanel unitgrid_player = new JPanel();
@@ -52,7 +56,62 @@ public class BattleScreen extends JFrame {
 	
 	
 	public BattleScreen(ArrayList<MilitaryUnit>[] planetArmy, ArrayList<MilitaryUnit>[] enemyArmy) {
-		Battle battle = new Battle(planetArmy, enemyArmy);
+		
+		updateLabels();
+		
+		
+		unitgrid_player.add(lightHunter_player);
+		unitgrid_player.add(heavyHunter_player);
+		unitgrid_player.add(battleShip_player);
+		unitgrid_player.add(armoredShip_player);
+		unitgrid_player.add(missileLauncher_player);
+		unitgrid_player.add(ionCannon_player);
+		unitgrid_player.add(plasmaCannon_player);
+		
+		unitgrid_enemy.add(lightHunter_enemy);
+		unitgrid_enemy.add(heavyHunter_enemy);
+		unitgrid_enemy.add(battleShip_enemy);
+		unitgrid_enemy.add(armoredShip_enemy);
+		unitgrid_enemy.add(missileLauncher_enemy);
+		unitgrid_enemy.add(ionCannon_enemy);
+		unitgrid_enemy.add(plasmaCannon_enemy);
+		
+		desc.setEditable(false);
+		String texto; 
+		int turn;
+		texto = battle.startBattle();
+		
+		
+		this.setLayout(new GridLayout(3, 1));
+		marcador.setLayout(new GridLayout(2, 3));
+		unitgrid_player.setLayout(new GridLayout(4, 2));
+		unitgrid_enemy.setLayout(new GridLayout(4, 2));
+		
+		marcador.add(tit_jugador);
+		marcador.add(tit_enemy);
+		marcador.add(unitgrid_player);
+		marcador.add(unitgrid_enemy);
+		
+		boton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if
+				desc.setText(battle.continueBattle());
+			}
+			
+		});
+		
+		
+		add(marcador);
+		add(desc);
+		add(boton);
+		
+		setSize(200,200);
+		setVisible(true);
+		
+		
+	}
+	
+	private void updateLabels() {
 		
 		int[] units_planet = battle.getActualNumberUnitsPlanet();
 		int[] units_enemy = battle.getActualNumberUnitsPlanet();
@@ -78,45 +137,8 @@ public class BattleScreen extends JFrame {
 		plasmaCannon_player = new JLabel("Plasma Cannon - " + units_planet[6]);
 		plasmaCannon_enemy= new JLabel("Plasma Cannon - " + units_enemy[6]);
 		
-		unitgrid_player.add(lightHunter_player);
-		unitgrid_player.add(heavyHunter_player);
-		unitgrid_player.add(battleShip_player);
-		unitgrid_player.add(armoredShip_player);
-		unitgrid_player.add(missileLauncher_player);
-		unitgrid_player.add(ionCannon_player);
-		unitgrid_player.add(plasmaCannon_player);
-		
-		unitgrid_enemy.add(lightHunter_enemy);
-		unitgrid_enemy.add(heavyHunter_enemy);
-		unitgrid_enemy.add(battleShip_enemy);
-		unitgrid_enemy.add(armoredShip_enemy);
-		unitgrid_enemy.add(missileLauncher_enemy);
-		unitgrid_enemy.add(ionCannon_enemy);
-		unitgrid_enemy.add(plasmaCannon_enemy);
-		
-		desc.setEditable(false);
-		
-		this.setLayout(new GridLayout(3, 1));
-		marcador.setLayout(new GridLayout(2, 3));
-		unitgrid_player.setLayout(new GridLayout(4, 2));
-		unitgrid_enemy.setLayout(new GridLayout(4, 2));
-		
-		marcador.add(tit_jugador);
-		marcador.add(tit_enemy);
-		marcador.add(unitgrid_player);
-		marcador.add(unitgrid_enemy);
-		
-		
-		
-		add(marcador);
-		add(desc);
-		add(boton);
-		
-		setSize(200,200);
-		setVisible(true);
-		
-		
 	}
+	
 	
 	
 }
