@@ -14,6 +14,10 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 class VentanaLogin extends JFrame {
     private JLabel titulo,nom,pwd;
@@ -21,17 +25,20 @@ class VentanaLogin extends JFrame {
     private JPasswordField password;
     private JPanel panelG,panelLogin;
     private JButton login,register;
-    
+    InfoUsers infoU;
+    CallableStatement cst;
 
     VentanaLogin(Connection con){
         iniciar();
         setTitle("Inicio de sesión");
-        
+
+        infoU = new InfoUsers();
+
         panelLogin = new JPanel();
         panelLogin.setOpaque(false);
 
         panelG = new JPanel(new FlowLayout());
-        panelG = new JPanelConFondo(new ImageIcon("space3.jpg").getImage());
+        panelG = new JPanelConFondo(new ImageIcon("space2.gif").getImage());
 
         GridLayout grid = new GridLayout(3,1);
         grid.setHgap(25);
@@ -54,36 +61,23 @@ class VentanaLogin extends JFrame {
                 if (nombre.getText().isEmpty() || password.getPassword().length == 0){
                     JOptionPane.showMessageDialog(null, "Rellené los campos", "Inicio de sesión", JOptionPane.WARNING_MESSAGE, null);
                 } else {
-                    try {
-                        String query = "select Username,Password from USU";
-                        Statement stm = con.createStatement();
-                        ResultSet rs = stm.executeQuery(query);
 
-                        while(rs.next()){
-                            if (rs.getString(1) == nombre.getText() || rs.getString(1) == nombre.getText()){
-                                JOptionPane.showMessageDialog(
-                                        null,
-                                        "Has iniciado sesión correctamente",
-                                        "Inicio de sesión",
-                                        JOptionPane.INFORMATION_MESSAGE,
-                                        null);
-                                new VentanaInicial(con);
-                            } else {
-                                JOptionPane.showMessageDialog(
-                                        null,
-                                        "Error | Usuario o contrasenya incorrecto",
-                                        "Inicio de sesión",
-                                        JOptionPane.INFORMATION_MESSAGE,
-                                        null);
-                                new VentanaLogin(con);
-                            }
-                        }
+                    int correcto = infoU.compruebaUser(con,nombre.getText(),String.valueOf(password.getPassword()));
 
-                    } catch (SQLException ex) {
-                        ex.printStackTrace();
+
+                    if (correcto == 1){
+                        JOptionPane.showOptionDialog(null, "Has iniciado sesión correctamente","Inicio de sesión", JOptionPane.DEFAULT_OPTION,JOptionPane.INFORMATION_MESSAGE, null, new Object[]{}, null);
+                        dispose();
+                        new VentanaInicial(con);
+                    } else {
+                        JOptionPane.showMessageDialog(
+                                null,
+                                "Error | Usuario o contrasenya incorrecto",
+                                "Inicio de sesión",
+                                JOptionPane.INFORMATION_MESSAGE,
+                                null);
                     }
                 }
-
             }
         });
         register.addActionListener(new ActionListener() {
@@ -108,7 +102,7 @@ class VentanaLogin extends JFrame {
     }
 
     public void iniciar(){
-        
+
         this.setIconImage(new ImageIcon("ico.png").getImage());
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(650,350);
@@ -125,6 +119,8 @@ class VentanaRegister extends JFrame{
     private JPasswordField password;
     private JPanel panelG,panelLogin;
     private JButton register,login;
+    InfoUsers infoU = new InfoUsers();
+    CallableStatement cst;
 
     VentanaRegister(Connection con){
         iniciar();
@@ -132,7 +128,7 @@ class VentanaRegister extends JFrame{
         setTitle("Registro de usuario");
 
         panelLogin = new JPanel();   panelG = new JPanel(new FlowLayout());
-        panelLogin.setOpaque(false); panelG = new JPanelConFondo(new ImageIcon("space3.jpg").getImage());
+        panelLogin.setOpaque(false); panelG = new JPanelConFondo(new ImageIcon("space2.gif").getImage());
 
         // Calendario
         UtilDateModel model = new UtilDateModel();
@@ -167,45 +163,40 @@ class VentanaRegister extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                try {
-                    java.util.Date selectedDate = (Date) datePicker.getModel().getValue();
 
-                    DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+                java.util.Date selectedDate = (Date) datePicker.getModel().getValue();
+                DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
-                    if (selectedDate == null){
-                        JOptionPane.showMessageDialog(null, "Rellené los campos", "Registro de usuario", JOptionPane.WARNING_MESSAGE, null);
-                    } else {
-                        String today = formatter.format(selectedDate);
+                if (selectedDate == null) {
+                    JOptionPane.showMessageDialog(null, "Rellené los campos", "Registro de usuario", JOptionPane.WARNING_MESSAGE, null);
+                } else {
+                    String today = formatter.format(selectedDate);
+
+                    SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+                    try {
+                        Date parsed = format.parse(today);
+                        java.sql.Date sql = new java.sql.Date(parsed.getTime());
 
                         if (nombre.getText().isBlank() || selectedDate == null || String.valueOf(password.getPassword()).isBlank()) {
                             JOptionPane.showMessageDialog(null, "Rellené los campos", "Registro de usuario", JOptionPane.WARNING_MESSAGE, null);
                         }
-
                         else {
-                            Statement stm = con.createStatement();
-                            String query = "select * from USU";
-                            ResultSet rs = stm.executeQuery(query);
+                            int existe = infoU.existeUser(con, nombre.getText());
 
-                            while (rs.next()) {
-                                if (nombre.getText() == rs.getString(2)) {
-                                    JOptionPane.showMessageDialog(null, "Ya existe un usuario similar", "Registro de usuario", JOptionPane.WARNING_MESSAGE, null);
-                                }
-                                else {
-                                    String insert = "insert into USU(Username,Birth_Date,Password) values(?,?,?)";
-                                    PreparedStatement pr_stm = con.prepareStatement(insert);
+                            if (existe == 1) {
+                                JOptionPane.showMessageDialog(null, "El usuario ya existe", "Registro de usuario", JOptionPane.WARNING_MESSAGE, null);
+                            } else {
+                                infoU.anyadeUser(con, nombre.getText(), sql, String.valueOf(password.getPassword()));
 
-                                    pr_stm.setString(2, nombre.getText());
-                                    pr_stm.setString(3, datePicker.getToolTipText());
-                                    pr_stm.setString(4, String.valueOf(password.getPassword()));
-
-                                    pr_stm.executeUpdate();}
-                            }}
+                                JOptionPane.showMessageDialog(null, "Te has registrado correctamente | BIENVENIDO/A", "Registro de usuario", JOptionPane.WARNING_MESSAGE, null);
+                                dispose();
+                                new VentanaInicial(con);
+                            }
+                        }
                     }
-
-
+                    catch (ParseException ex) {ex.printStackTrace();}
                 }
-
-                catch(SQLException ex){ex.printStackTrace();}}
+            }
 
         });
         login.addActionListener(new ActionListener() {
@@ -228,10 +219,11 @@ class VentanaRegister extends JFrame{
         panelG.add(titulo);
         panelG.add(panelLogin);
 
-        add(panelG,BorderLayout.CENTER);}
+        add(panelG,BorderLayout.CENTER);
+
+        this.setVisible(true);}
 
     public void iniciar(){
-        this.setVisible(true);
         this.setIconImage(new ImageIcon("ico.png").getImage());
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(650,350);
@@ -260,4 +252,3 @@ class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
         return "";
     }
 }
-
