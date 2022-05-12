@@ -15,6 +15,10 @@ public class Battle implements Variables {
 	int[] actualNumberUnitsPlanet = new int[7];
 	int[] actualNumberUnitsEnemy = new int[7];
 	
+	public Battle(ArrayList<MilitaryUnit>[] planetArmy, ArrayList<MilitaryUnit>[] enemyArmy) {
+		initVariables(planetArmy, enemyArmy);
+	}
+	
 	private int getTotalUnitsSquad(ArrayList<MilitaryUnit> squad) {
 		int total = 0;
 		for (int i = 0; i < squad.size(); i++) {
@@ -219,6 +223,104 @@ public class Battle implements Variables {
 			actualNumberUnitsEnemy[type] -= 1;
 		}
 	}
+
+	public ArrayList<MilitaryUnit>[] getPlanetArmy() {
+		return planetArmy;
+	}
+
+	public void setPlanetArmy(ArrayList<MilitaryUnit>[] planetArmy) {
+		this.planetArmy = planetArmy;
+	}
+
+	public ArrayList<MilitaryUnit>[] getEnemyArmy() {
+		return enemyArmy;
+	}
+
+	public void setEnemyArmy(ArrayList<MilitaryUnit>[] enemyArmy) {
+		this.enemyArmy = enemyArmy;
+	}
+
+	public ArrayList[][] getArmies() {
+		return armies;
+	}
+
+	public void setArmies(ArrayList[][] armies) {
+		this.armies = armies;
+	}
+
+	public String getBattleDevelopment() {
+		return battleDevelopment;
+	}
+
+	public void setBattleDevelopment(String battleDevelopment) {
+		this.battleDevelopment = battleDevelopment;
+	}
+
+	public int[][] getInitialCostFleet() {
+		return initialCostFleet;
+	}
+
+	public void setInitialCostFleet(int[][] initialCostFleet) {
+		this.initialCostFleet = initialCostFleet;
+	}
+
+	public int getInitialNumberUnitsPlanet() {
+		return initialNumberUnitsPlanet;
+	}
+
+	public void setInitialNumberUnitsPlanet(int initialNumberUnitsPlanet) {
+		this.initialNumberUnitsPlanet = initialNumberUnitsPlanet;
+	}
+
+	public int getInitialNumberUnitsEnemy() {
+		return initialNumberUnitsEnemy;
+	}
+
+	public void setInitialNumberUnitsEnemy(int initialNumberUnitsEnemy) {
+		this.initialNumberUnitsEnemy = initialNumberUnitsEnemy;
+	}
+
+	public int[] getWasteMetalDeuterium() {
+		return wasteMetalDeuterium;
+	}
+
+	public void setWasteMetalDeuterium(int[] wasteMetalDeuterium) {
+		this.wasteMetalDeuterium = wasteMetalDeuterium;
+	}
+
+	public int[][] getResourcesLosses() {
+		return resourcesLosses;
+	}
+
+	public void setResourcesLosses(int[][] resourcesLosses) {
+		this.resourcesLosses = resourcesLosses;
+	}
+
+	public int[][] getInitialArmies() {
+		return initialArmies;
+	}
+
+	public void setInitialArmies(int[][] initialArmies) {
+		this.initialArmies = initialArmies;
+	}
+
+	public int[] getActualNumberUnitsPlanet() {
+		return actualNumberUnitsPlanet;
+	}
+
+	public void setActualNumberUnitsPlanet(int[] actualNumberUnitsPlanet) {
+		this.actualNumberUnitsPlanet = actualNumberUnitsPlanet;
+	}
+
+	public int[] getActualNumberUnitsEnemy() {
+		return actualNumberUnitsEnemy;
+	}
+
+	public void setActualNumberUnitsEnemy(int[] actualNumberUnitsEnemy) {
+		this.actualNumberUnitsEnemy = actualNumberUnitsEnemy;
+	}
+	
+	
 	
 	
 }
