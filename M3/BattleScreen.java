@@ -19,6 +19,7 @@ import javax.swing.plaf.BorderUIResource;
 public class BattleScreen extends JFrame {
 	
 	Battle battle;
+	Planet planet;
 	
 	private JPanel marcador = new JPanel();
 	private JPanel unitgrid_player = new JPanel();
@@ -55,8 +56,8 @@ public class BattleScreen extends JFrame {
 	
 	
 	
-	public BattleScreen(ArrayList<MilitaryUnit>[] planetArmy, ArrayList<MilitaryUnit>[] enemyArmy) {
-		
+	public BattleScreen(ArrayList<MilitaryUnit>[] enemyArmy) {
+		battle = new Battle(planet.getArmy(), enemyArmy);
 		updateLabels();
 		
 		
@@ -77,10 +78,21 @@ public class BattleScreen extends JFrame {
 		unitgrid_enemy.add(plasmaCannon_enemy);
 		
 		desc.setEditable(false);
-		String texto; 
-		int turn;
-		texto = battle.startBattle();
+		String texto = battle.startBattle();
 		
+		int winner = battle.getWinner();
+		if (winner != 0) {
+			boton.setText("END BATTLE");
+			if (winner == 1) {
+				texto += "\n\n" + "Planet Army won the battle!";
+				planet.setMetal(planet.getMetal() + battle.getWasteMetalDeuterium()[0]);
+				planet.setDeuterium(planet.getDeuterium() + battle.getWasteMetalDeuterium()[1]);
+			} else if (winner == 2) {
+				texto += "\n\n" + "Enemy Army won the battle!";
+			}
+		}
+		
+		desc.setText(texto);
 		
 		this.setLayout(new GridLayout(3, 1));
 		marcador.setLayout(new GridLayout(2, 3));
@@ -94,8 +106,21 @@ public class BattleScreen extends JFrame {
 		
 		boton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if
-				desc.setText(battle.continueBattle());
+				updateLabels();
+				String texto = battle.continueBattle();
+				int winner = battle.getWinner();
+				if (winner != 0) {
+					boton.setText("END BATTLE");
+					if (winner == 1) {
+						texto += "\n\n" + "Planet Army won the battle!";
+						planet.setMetal(planet.getMetal() + battle.getWasteMetalDeuterium()[0]);
+						planet.setDeuterium(planet.getDeuterium() + battle.getWasteMetalDeuterium()[1]);
+					} else if (winner == 2) {
+						texto += "\n\n" + "Enemy Army won the battle!";
+					}
+				}
+				
+				desc.setText(texto);
 			}
 			
 		});
@@ -107,7 +132,6 @@ public class BattleScreen extends JFrame {
 		
 		setSize(200,200);
 		setVisible(true);
-		
 		
 	}
 	
