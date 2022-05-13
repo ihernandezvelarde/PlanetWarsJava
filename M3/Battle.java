@@ -15,6 +15,8 @@ public class Battle implements Variables {
 	int[] actualNumberUnitsPlanet = new int[7];
 	int[] actualNumberUnitsEnemy = new int[7];
 	
+	int turn;
+	
 	public Battle(ArrayList<MilitaryUnit>[] planetArmy, ArrayList<MilitaryUnit>[] enemyArmy) {
 		initVariables(planetArmy, enemyArmy);
 	}
@@ -75,15 +77,17 @@ public class Battle implements Variables {
 		enemyArmy = enemyInitialArmy;
 		armies[0] = planetArmy;
 		armies[1] = enemyArmy;
+		
+		getStartingTurn();
 	}
 	
-	private int getStartingTurn() {
+	private void getStartingTurn() {
 		// Retorna un numero enter aleatori entre 0 i 1
 		// Si retorna 0 es el torn del jugador, si retorna 1 es el torn de l'enemic
-		return (int) (Math.random());
+		turn = (int) (Math.random());
 	}
 	
-	private MilitaryUnit getAttacker(int turn) {
+	private MilitaryUnit getAttacker() {
 		// S'escull un nombre aleatori entre 0 i 100 perque 
 		// els valors totals de les Arrays de probabilitat, tant les de jugador com les d'enemic,
 		// equivalen a 100
@@ -131,7 +135,7 @@ public class Battle implements Variables {
 		return null;
 	}
 	
-	private MilitaryUnit getDefender(int turn) {
+	private MilitaryUnit getDefender() {
 		if (turn == 0) {
 			// Obte el nombre total d'unitats en l'exercit per a calcular les probabilitats
 			int totalChances = getTotalUnitsFleet(enemyArmy);
@@ -183,7 +187,7 @@ public class Battle implements Variables {
 		return null;
 	}
 	
-	private String attack(MilitaryUnit attacker, MilitaryUnit defender, int turn) {
+	private String attack(MilitaryUnit attacker, MilitaryUnit defender) {
 		String message = attacker.getClass().getSimpleName() + " attacks " + defender.getClass();
 		int dmg = attacker.attack();
 		message += "\n" + attacker.getClass().getSimpleName() + " deals " + dmg + " damage";
@@ -201,7 +205,7 @@ public class Battle implements Variables {
 					(defender instanceof PlasmaCannon && chance_waste <= CHANCE_GENERATNG_WASTE_PLASMACANNON)) {
 				wasteMetalDeuterium[0] = defender.getMetalCost()*PERCENTATGE_WASTE;
 				wasteMetalDeuterium[1] = defender.getDeuteriumCost()*PERCENTATGE_WASTE;
-				message += "\n" + loseShip(defender, turn);
+				message += "\n" + loseShip(defender);
 			}	
 			
 		}
@@ -210,7 +214,8 @@ public class Battle implements Variables {
 		return message;
 	}
 	
-	private int checkArmies() {
+	
+	public int getWinner() {
 		int total_units_planet = 0;
 		int total_units_enemy = 0;
 		for (int i = 0; i < actualNumberUnitsPlanet.length; i++) {
@@ -220,19 +225,16 @@ public class Battle implements Variables {
 			}
 		}
 		if (total_units_planet < initialNumberUnitsPlanet*0.2 || total_units_planet < initialNumberUnitsPlanet*0.2) {
-			return 1;
+			if (resourcesLosses[0][2] < resourcesLosses[1][2]) {
+				return 1;
+			}
+			return 2;
 		}
 		return 0;
 	}
 	
-	private int getWinner() {
-		if (resourcesLosses[0][2] < resourcesLosses[1][2]) {
-			return 0;
-		}
-		return 1;
-	}
 	
-	private String loseShip(MilitaryUnit ship, int turn) {
+	public String loseShip(MilitaryUnit ship) {
 		resourcesLosses[turn][0] += ship.getMetalCost();
 		resourcesLosses[turn][1] += ship.getDeuteriumCost();
 		resourcesLosses[turn][2] += ship.getMetalCost() + 5*ship.getDeuteriumCost();
@@ -282,34 +284,44 @@ public class Battle implements Variables {
 	}
 	
 	public String startBattle() {
-		int turn = getStartingTurn();
 		String msg;
 		if (turn == 0) {
 			msg = "Planet attacks: " + "\n";
 		} else {
 			msg = "Enemy Fleet attacks: " + "\n";
 		}
-		MilitaryUnit attacker = getAttacker(turn);
-		MilitaryUnit defender = getDefender(turn);
+		MilitaryUnit attacker = getAttacker();
+		MilitaryUnit defender = getDefender();
 		
-		msg += attack(attacker, defender, turn);
+		msg += attack(attacker, defender);
+		battleDevelopment = msg;
+		
+		return msg;
+	}
+	
+	public String continueBattle() {
+		String msg;
+		if (turn == 0) {
+			msg = "Planet attacks: " + "\n";
+		} else {
+			msg = "Enemy Fleet attacks: " + "\n";
+		}
+		MilitaryUnit attacker = getAttacker();
+		MilitaryUnit defender = getDefender();
+		
+		msg += attack(attacker, defender);
 		battleDevelopment = msg;
 		return msg;
 	}
 	
-	public String continueBattle(int turn) {
-		String msg;
-		if (turn == 0) {
-			msg = "Planet attacks: " + "\n";
-		} else {
-			msg = "Enemy Fleet attacks: " + "\n";
-		}
-		MilitaryUnit attacker = getAttacker(turn);
-		MilitaryUnit defender = getDefender(turn);
-		
-		msg += attack(attacker, defender, turn);
-		battleDevelopment = msg;
-		return msg;
+	
+	
+	public int getTurn() {
+		return turn;
+	}
+
+	public void setTurn(int turn) {
+		this.turn = turn;
 	}
 
 	public ArrayList<MilitaryUnit>[] getPlanetArmy() {
