@@ -14,10 +14,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 class VentanaLogin extends JFrame {
     private JLabel titulo,nom,pwd;
@@ -26,11 +22,10 @@ class VentanaLogin extends JFrame {
     private JPanel panelG,panelLogin;
     private JButton login,register;
     InfoUsers infoU;
-    CallableStatement cst;
 
     VentanaLogin(Connection con){
         iniciar();
-        setTitle("Inicio de sesión");
+        setTitle("LOGIN");
 
         infoU = new InfoUsers();
 
@@ -51,29 +46,34 @@ class VentanaLogin extends JFrame {
         titulo.setFont(new Font("Aharoni",Font.BOLD,40));
         titulo.setForeground(Color.white);
 
-        nom = new JLabel("Nombre: "); nombre = new JTextField(14);
-        pwd = new JLabel("Contrasenya: "); password = new JPasswordField(14);
-        login = new JButton("Iniciar sesión");register = new JButton("Registrarse");
+        nom = new JLabel("Name: "); nombre = new JTextField(14);
+        pwd = new JLabel("Password: "); password = new JPasswordField(14);
+        login = new JButton("Log In");register = new JButton("Register");
 
         login.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (nombre.getText().isEmpty() || password.getPassword().length == 0){
-                    JOptionPane.showMessageDialog(null, "Rellené los campos", "Inicio de sesión", JOptionPane.WARNING_MESSAGE, null);
+                    JOptionPane.showMessageDialog(null, "Fill up the blanks", "Login", JOptionPane.WARNING_MESSAGE, null);
                 } else {
 
                     int correcto = infoU.compruebaUser(con,nombre.getText(),String.valueOf(password.getPassword()));
 
 
                     if (correcto == 1){
-                        JOptionPane.showOptionDialog(null, "Has iniciado sesión correctamente","Inicio de sesión", JOptionPane.DEFAULT_OPTION,JOptionPane.INFORMATION_MESSAGE, null, new Object[]{}, null);
+                        JOptionPane.showMessageDialog(
+                                null,
+                                "¡¡ YOU HAVE LOGGED IN SUCCESSFULLY !!",
+                                "LOGIN",
+                                JOptionPane.INFORMATION_MESSAGE,
+                                null);
                         dispose();
-                        new VentanaInicial(con);
+                        new VentanaInicial(con,nombre.getText());
                     } else {
                         JOptionPane.showMessageDialog(
                                 null,
-                                "Error | Usuario o contrasenya incorrecto",
-                                "Inicio de sesión",
+                                "ERROR | INCORRECT USERNAME OR PASSWORD ",
+                                "LOG IN",
                                 JOptionPane.INFORMATION_MESSAGE,
                                 null);
                     }
@@ -114,8 +114,8 @@ class VentanaLogin extends JFrame {
 
 class VentanaRegister extends JFrame{
 
-    private JLabel titulo,nom,fecha,pwd;
-    private JTextField nombre;
+    private JLabel titulo,nom,fecha,pwd,planet;
+    private JTextField nombre,planetName;
     private JPasswordField password;
     private JPanel panelG,panelLogin;
     private JButton register,login;
@@ -125,7 +125,7 @@ class VentanaRegister extends JFrame{
     VentanaRegister(Connection con){
         iniciar();
 
-        setTitle("Registro de usuario");
+        setTitle("User Registration");
 
         panelLogin = new JPanel();   panelG = new JPanel(new FlowLayout());
         panelLogin.setOpaque(false); panelG = new JPanelConFondo(new ImageIcon("space2.gif").getImage());
@@ -139,7 +139,7 @@ class VentanaRegister extends JFrame{
         JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
 
         // Grid del Login
-        GridLayout grid = new GridLayout(4,1);
+        GridLayout grid = new GridLayout(5,1);
         grid.setHgap(25);
         grid.setVgap(25);
 
@@ -153,22 +153,22 @@ class VentanaRegister extends JFrame{
         titulo.setFont(new Font("Aharoni",Font.BOLD,40));
         titulo.setForeground(Color.white);
 
-        nom = new JLabel("Nombre: "); nombre = new JTextField(14);
-        pwd = new JLabel("Contrasenya: "); password = new JPasswordField(14);
-        fecha = new JLabel("Fecha de nacimiento: ");
-        register = new JButton("Registrarse");login = new JButton("Iniciar sesión");
+        planet = new JLabel("Planet Name: ");planetName = new JTextField(14);
+        nom = new JLabel("Name: "); nombre = new JTextField(14);
+        pwd = new JLabel("Password: "); password = new JPasswordField(14);
+        fecha = new JLabel("Birth Date: ");
+        register = new JButton("Register");login = new JButton("Login");
 
         // Action Listeners
         register.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-
                 java.util.Date selectedDate = (Date) datePicker.getModel().getValue();
                 DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
                 if (selectedDate == null) {
-                    JOptionPane.showMessageDialog(null, "Rellené los campos", "Registro de usuario", JOptionPane.WARNING_MESSAGE, null);
+                    JOptionPane.showMessageDialog(null, "Fill up the blanks", "User Registration", JOptionPane.WARNING_MESSAGE, null);
                 } else {
                     String today = formatter.format(selectedDate);
 
@@ -178,19 +178,22 @@ class VentanaRegister extends JFrame{
                         java.sql.Date sql = new java.sql.Date(parsed.getTime());
 
                         if (nombre.getText().isBlank() || selectedDate == null || String.valueOf(password.getPassword()).isBlank()) {
-                            JOptionPane.showMessageDialog(null, "Rellené los campos", "Registro de usuario", JOptionPane.WARNING_MESSAGE, null);
+                            JOptionPane.showMessageDialog(null, "Fill up the blanks", "User Registration", JOptionPane.WARNING_MESSAGE, null);
                         }
                         else {
                             int existe = infoU.existeUser(con, nombre.getText());
 
                             if (existe == 1) {
-                                JOptionPane.showMessageDialog(null, "El usuario ya existe", "Registro de usuario", JOptionPane.WARNING_MESSAGE, null);
+                                JOptionPane.showMessageDialog(null, "The user already exists", "User Registration", JOptionPane.WARNING_MESSAGE, null);
                             } else {
                                 infoU.anyadeUser(con, nombre.getText(), sql, String.valueOf(password.getPassword()));
 
-                                JOptionPane.showMessageDialog(null, "Te has registrado correctamente | BIENVENIDO/A", "Registro de usuario", JOptionPane.WARNING_MESSAGE, null);
+                                int id = infoU.getIdUser(con,nombre.getText());
+                                infoU.anyadePlaneta(con,planetName.getText(),id);
+
+                                JOptionPane.showMessageDialog(null, " You have registred correctly | WELCOME ABOARD", "User Registration", JOptionPane.WARNING_MESSAGE, null);
                                 dispose();
-                                new VentanaInicial(con);
+                                new VentanaInicial(con,nombre.getText());
                             }
                         }
                     }
@@ -207,10 +210,12 @@ class VentanaRegister extends JFrame{
             }
         });
 
-        nom.setForeground(Color.white);pwd.setForeground(Color.white);fecha.setForeground(Color.white);
+        planet.setForeground(Color.white);nom.setForeground(Color.white);
+        pwd.setForeground(Color.white);fecha.setForeground(Color.white);
 
 
         // Añadir Objetos
+        panelLogin.add(planet);panelLogin.add(planetName);
         panelLogin.add(nom);panelLogin.add(nombre);
         panelLogin.add(fecha);panelLogin.add(datePicker);
         panelLogin.add(pwd);panelLogin.add(password);
@@ -226,7 +231,7 @@ class VentanaRegister extends JFrame{
     public void iniciar(){
         this.setIconImage(new ImageIcon("ico.png").getImage());
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(650,350);
+        this.setSize(650,375);
         // this.setResizable(false);
         this.setLocationRelativeTo(null);
     }
