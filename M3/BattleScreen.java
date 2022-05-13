@@ -6,6 +6,9 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -56,7 +59,8 @@ public class BattleScreen extends JFrame {
 	
 	
 	
-	public BattleScreen(ArrayList<MilitaryUnit>[] enemyArmy) {
+	public BattleScreen(Planet planet, ArrayList<MilitaryUnit>[] enemyArmy, Connection con, int idUser) {
+		this.planet = planet;
 		battle = new Battle(planet.getArmy(), enemyArmy);
 		updateLabels();
 		
@@ -111,6 +115,38 @@ public class BattleScreen extends JFrame {
 				int winner = battle.getWinner();
 				if (winner != 0) {
 					boton.setText("END BATTLE");
+					boton.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent arg0) {
+							try {
+								CallableStatement cst = con.prepareCall("{call add_battle(?, ?, ?, ?, ?)}");
+								cst.setInt(1, idUser);
+								cst.setInt(2, battle.getInitialNumberUnitsPlanet());
+								
+								int[] unitsPlanet = battle.getActualNumberUnitsPlanet();
+								int totalPlanet = 0;
+								for (int i = 0; i < unitsPlanet.length; i++) {
+									totalPlanet += unitsPlanet[i];
+								}
+								
+								cst.setInt(3, totalPlanet);
+								
+								cst.setInt(4, battle.getInitialNumberUnitsEnemy());
+								
+								int[] unitsEnemy = battle.getActualNumberUnitsPlanet();
+								int totalEnemy = 0;
+								for (int i = 0; i < unitsPlanet.length; i++) {
+									totalEnemy += unitsPlanet[i];
+								}
+								
+								cst.setInt(5, totalEnemy);
+								
+							} catch (SQLException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							dispose();
+						}
+					});
 					if (winner == 1) {
 						texto += "\n\n" + "Planet Army won the battle!";
 						planet.setMetal(planet.getMetal() + battle.getWasteMetalDeuterium()[0]);
@@ -137,6 +173,7 @@ public class BattleScreen extends JFrame {
 	
 	private void updateLabels() {
 		
+		// Actualitza les JLabels de les dades de cada exercit
 		int[] units_planet = battle.getActualNumberUnitsPlanet();
 		int[] units_enemy = battle.getActualNumberUnitsPlanet();
 		
@@ -159,10 +196,8 @@ public class BattleScreen extends JFrame {
 		ionCannon_enemy = new JLabel("Ion Cannon - " + units_enemy[5]);
 		
 		plasmaCannon_player = new JLabel("Plasma Cannon - " + units_planet[6]);
-		plasmaCannon_enemy= new JLabel("Plasma Cannon - " + units_enemy[6]);
+		plasmaCannon_enemy = new JLabel("Plasma Cannon - " + units_enemy[6]);
 		
 	}
-	
-	
 	
 }

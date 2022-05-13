@@ -22,7 +22,7 @@ public class Battle implements Variables {
 	}
 	
 	// Funcio que retorna la quantitat total d'unitats d'un mateix tipus
-	private int getTotalUnitsSquad(ArrayList<MilitaryUnit> squad) {
+	public int getTotalUnitsSquad(ArrayList<MilitaryUnit> squad) {
 		int total = 0;
 		for (int i = 0; i < squad.size(); i++) {
 			total += squad.get(i).getQuantity();
@@ -31,7 +31,7 @@ public class Battle implements Variables {
 	}
 	
 	// Funcio que retorna la quantitat total d'unitats d'un mateix exercit
-	private int getTotalUnitsFleet(ArrayList<MilitaryUnit>[] fleet) {
+	public int getTotalUnitsFleet(ArrayList<MilitaryUnit>[] fleet) {
 		int total = 0;
 		for (int i = 0; i < fleet.length; i++) {
 			total += getTotalUnitsSquad(fleet[i]);
@@ -50,7 +50,7 @@ public class Battle implements Variables {
 		// Recorre les arrays d'exercits per a comptar el nombre total de tropes (objectes) que hi ha a cada exercit
 		for (int i = 0; i < planetInitialArmy.length; i ++) {
 			initialArmies [0][i] = getTotalUnitsSquad(planetInitialArmy[i]);
-			actualNumberUnitsPlanet[i] = planetInitialArmy[i].size();
+			actualNumberUnitsPlanet[i] = getTotalUnitsSquad(planetInitialArmy[i]);
 			for (int j = 0; j < planetInitialArmy[i].size(); j++) {
 				total_cost_metal_planet += planetInitialArmy[i].get(j).getMetalCost();
 				total_cost_deuterium_planet += planetInitialArmy[i].get(j).getDeuteriumCost();
@@ -59,7 +59,7 @@ public class Battle implements Variables {
 			// la columna 7
 			if (i <= 3) {
 				initialArmies [1][i] = getTotalUnitsSquad(enemyInitialArmy[i]);
-				actualNumberUnitsEnemy[i] = enemyInitialArmy[i].size();
+				actualNumberUnitsEnemy[i] = getTotalUnitsSquad(enemyInitialArmy[i]);
 				
 				for (int j = 0; j < enemyInitialArmy[i].size(); i++) {
 					total_cost_metal_enemy += enemyInitialArmy[i].get(j).getMetalCost();
@@ -216,15 +216,7 @@ public class Battle implements Variables {
 	
 	
 	public int getWinner() {
-		int total_units_planet = 0;
-		int total_units_enemy = 0;
-		for (int i = 0; i < actualNumberUnitsPlanet.length; i++) {
-			total_units_planet += actualNumberUnitsPlanet[i];
-			if (i <= 3) {
-				total_units_enemy += actualNumberUnitsEnemy[i];
-			}
-		}
-		if (total_units_planet < initialNumberUnitsPlanet*0.2 || total_units_planet < initialNumberUnitsPlanet*0.2) {
+		if (getTotalUnitsFleet(planetArmy) < initialNumberUnitsPlanet*0.2 || getTotalUnitsFleet(enemyArmy) < initialNumberUnitsPlanet*0.2) {
 			if (resourcesLosses[0][2] < resourcesLosses[1][2]) {
 				return 1;
 			}
