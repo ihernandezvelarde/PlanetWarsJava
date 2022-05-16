@@ -119,7 +119,7 @@ crear := 'create table BATTLE_STEP (
 ID_Battle int not null,
 foreign key (ID_Battle) references BATTLE(ID_Battle),
 ID_Step int not null,
-desc varchar(32767) not null,
+descripcion varchar(4000) not null,
 constraint pk_battle_step primary key (ID_Battle, ID_Step))';
 execute immediate crear;
 end;
