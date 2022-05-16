@@ -22,10 +22,11 @@ class VentanaLogin extends JFrame {
     private JPanel panelG,panelLogin;
     private JButton login,register;
     InfoUsers infoU;
+    CallableStatement cst;
 
     VentanaLogin(Connection con){
         iniciar();
-        setTitle("LOGIN");
+        setTitle("LOG IN");
 
         infoU = new InfoUsers();
 
@@ -54,7 +55,7 @@ class VentanaLogin extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (nombre.getText().isEmpty() || password.getPassword().length == 0){
-                    JOptionPane.showMessageDialog(null, "Fill up the blanks", "Login", JOptionPane.WARNING_MESSAGE, null);
+                    JOptionPane.showMessageDialog(null, "Fill up the blanks", "Log In", JOptionPane.WARNING_MESSAGE, null);
                 } else {
 
                     int correcto = infoU.compruebaUser(con,nombre.getText(),String.valueOf(password.getPassword()));
@@ -64,7 +65,7 @@ class VentanaLogin extends JFrame {
                         JOptionPane.showMessageDialog(
                                 null,
                                 "¡¡ YOU HAVE LOGGED IN SUCCESSFULLY !!",
-                                "LOGIN",
+                                "Log In",
                                 JOptionPane.INFORMATION_MESSAGE,
                                 null);
                         dispose();
@@ -72,8 +73,8 @@ class VentanaLogin extends JFrame {
                     } else {
                         JOptionPane.showMessageDialog(
                                 null,
-                                "ERROR | INCORRECT USERNAME OR PASSWORD ",
-                                "LOG IN",
+                                "Error | Incorrect username or password ",
+                                "Log In",
                                 JOptionPane.INFORMATION_MESSAGE,
                                 null);
                     }
@@ -191,7 +192,7 @@ class VentanaRegister extends JFrame{
                                 int id = infoU.getIdUser(con,nombre.getText());
                                 infoU.anyadePlaneta(con,planetName.getText(),id);
 
-                                JOptionPane.showMessageDialog(null, " You have registred correctly | WELCOME ABOARD", "User Registration", JOptionPane.WARNING_MESSAGE, null);
+                                JOptionPane.showMessageDialog(null, "¡¡ YOU HAVE REGISTERED SUCCESSFULLY !!", "User Registration", JOptionPane.WARNING_MESSAGE, null);
                                 dispose();
                                 new VentanaInicial(con,nombre.getText());
                             }
