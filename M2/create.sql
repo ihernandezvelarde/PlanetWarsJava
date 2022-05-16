@@ -5,7 +5,7 @@ crear := 'create table USU (
 ID_User int primary key not null,
 Username varchar(255) not null unique,
 Birth_Date date not null,
-Contrasenya varchar(255) not null)';
+Password varchar(255) not null)';
 execute immediate crear;
 
 crear := 'create table PLANET (
@@ -55,7 +55,8 @@ foreign key (ID_Planet) references PLANET(ID_Planet),
 ID_Defense int not null,
 foreign key (ID_Defense) references DEFENSE(ID_Defense),
 cant int not null,
-Lvl int not null,
+Lvl_attack int not null,
+Lvl_defense int not null,
 constraint pk_Planet_Defenses primary key (ID_Planet, ID_Defense))';
 execute immediate crear;
 
@@ -66,7 +67,8 @@ foreign key (ID_Planet) references PLANET(ID_Planet),
 ID_Ship int not null,
 foreign key (ID_Ship) references SHIP(ID_Ship),
 cant int not null,
-Lvl int not null,
+Lvl_attack int not null,
+Lvl_defense int not null,
 constraint pk_Planet_Ship primary key (ID_Planet, ID_Ship))';
 execute immediate crear;
 
@@ -78,6 +80,14 @@ Total_Starting_Units_User int not null,
 Total_Remaining_Units_User int not null,
 Total_Starting_Units_Enemy int not null,
 Total_Remaining_Units_Enemy int not null,
+Planet_Metal_Costs int not null,
+Planet_Deuterium_Costs int not null,
+Enemy_Metal_Costs int not null,
+Enemy_Deuterium_Costs int not null,
+Planet_Metal_Losses int not null,
+Planet_Deuterium_Losses int not null,
+Enemy_Metal_Losses int not null,
+Enemy_Deuterium_Losses int not null,
 constraint pk_Battle primary key (ID_Battle),
 foreign key (ID_User) references USU(ID_User))';
 execute immediate crear;
@@ -91,7 +101,7 @@ foreign key (ID_Defense) references DEFENSE(ID_Defense),
 Starting_Amount int not null,
 Remaining_Amount int not null,
 Side int,
-constraint pk_battle_defense primary key (ID_Battle, ID_Defense))';
+constraint pk_battle_defense primary key (ID_Battle, ID_Defense, Side))';
 execute immediate crear;
 
 crear := 'create table BATTLE_HAS_SHIPS (
@@ -102,6 +112,14 @@ foreign key (ID_Ship) references SHIP(ID_Ship),
 Starting_Amount int not null,
 Remaining_Amount int not null,
 Side int,
-constraint pk_battle_ship primary key (ID_Battle, ID_Ship))';
+constraint pk_battle_ship primary key (ID_Battle, ID_Ship, Side))';
+execute immediate crear;
+
+crear := 'create table BATTLE_STEP (
+ID_Battle int not null,
+foreign key (ID_Battle) references BATTLE(ID_Battle),
+ID_Step int not null,
+desc varchar(32767) not null,
+constraint pk_battle_step primary key (ID_Battle, ID_Step))';
 execute immediate crear;
 end;
