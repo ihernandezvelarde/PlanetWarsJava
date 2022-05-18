@@ -18,6 +18,7 @@ public class PlasmaCannon extends Defense implements MilitaryUnit{
             super.setBaseDamage(cst.getInt(8));
             this.setArmor(this.getInitialArmor() + (tecnoDefense*PLUS_ARMOR_PLASMACANNON_BY_TECHNOLOGY)*this.getInitialArmor()/100);
             this.setBaseDamage(this.getBaseDamage()+(tecnoAtack*PLUS_ATTACK_PLASMACANNON_BY_TECHNOLOGY)*this.getBaseDamage()/100);
+            cst.close();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -36,18 +37,20 @@ public class PlasmaCannon extends Defense implements MilitaryUnit{
     @Override
     public int getChanceAttackAgain() {return this.CHANCE_ATTACK_AGAIN_PLASMACANNON;}
 
-	@Override
-	public int getMetalCost() {
+    @Override
+    public int getMetalCost() {
         try {return cst.getInt(3);}
         catch (SQLException e) {return 0;}
-	}
+    }
 
-	@Override
-	public int getDeuteriumCost() {
+    @Override
+    public int getDeuteriumCost() {
         try {return cst.getInt(5);}
         catch (SQLException e) {return 0;}
-	}
+    }
 
-	@Override
-	public int getChanceGeneratinWaste() {return CHANCE_GENERATNG_WASTE_PLASMACANNON;}
+    @Override
+    public int getChanceGeneratinWaste() {return CHANCE_GENERATNG_WASTE_PLASMACANNON;}
+
+
 }
