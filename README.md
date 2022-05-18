@@ -1,14 +1,17 @@
+# 👾 PLANET WARS 👾 | Definición del proyecto
+
+El objetivo de este proyecto es el de crear un juego de naves, similar al famoso juego OGame, con Java e interficies gráficas del mismo para la GUI. Se debe tener una base de datos donde se guardarán los registros de cada partida, así como los usuarios, todo esto realizado y controlado con PLSQL.
+
+El juego en cuestión trata de sobrevivir a oleadas de tropas enemigas con el objetivo de destruir y saquear vuestro planeta, por lo que antes de que eso ocurra tendrás que prepararte construyendo y mejorando tus tropas y defensas, con los recursos que tu planeta irá generando periódicamente, para afrontar a esta amenaza.
 
 
-Definición del proyecto:
+# ⚙️ Instrucciones de instalación y utilización del proyecto:
 
-El proyecto trata de hacer un programa sobre una aventura convencional(genero de videojuegos). Este será un juego de toma de decisiones, te describirá la situación en la que te encuentras y deberás escoger la acción que quieras realizar. Dependiendo de tus elecciones irán varindo las opciones que te irán apareciendo y los finales serán distintos. Para ello hemos creado una maquina virtual donde se encuentra el servidor de nuestra base de datos, hemos hecho las funciones que están dentro del programa y programa global en si, una página web explicativa y todo ello trabajando a través de github.
+    - Unzip the 📦 .zip file
 
-Instrucciones de instalación y utilización del proyecto:
 
-    Instalación Eclipse, mysql connector.
 
-Autores:
+# 📖 Autores:
 
     Erik Tamaño Santos: correo: etamanosantos.cf@iesesteveterradas.cat, telef: +34-688-888-888, linkedIn: linkedin.com/in/erik-tamaño-santos-72ab93230
     Irene Hernández Velarde: correo: ihernandezvelarde.cf@iesesteveterradas.cat, telef: +34-677-777-777, linkedIn: https://es.linkedin.com/in/irene-hern%C3%A1ndez-velarde-3bb07621a
