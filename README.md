@@ -7,8 +7,7 @@ El juego en cuestión trata de sobrevivir a oleadas de tropas enemigas con el ob
 
 # ⚙️ Instrucciones de instalación y utilización del proyecto:
 
-    - Unzip the 📦 .zip file
-
+    Para el buen funcionamiento del juego se necesitan instalar dos librerías que se encuentran el carpeta M3.
 
 
 # 📖 Autores:
