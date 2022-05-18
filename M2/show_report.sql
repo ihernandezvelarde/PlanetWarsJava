@@ -1,0 +1,56 @@
+create or replace NONEDITIONABLE procedure show_report (
+    id_bat in out number,
+    id_usu out number,
+    inicio_usu out number,
+    final_usu out number,
+    inicio_enem out number,
+    final_enem out number,
+    cost_metal_usu out number,
+    cost_deut_usu out number,
+    cost_metal_enem out number,
+    cost_deut_enem out number,
+    loss_metal_usu out number,
+    loss_deut_usu out number,
+    loss_metal_enem out number,
+    loss_deut_enem out number,
+    waste_metal out number,
+    waste_deut out number,
+    ganador out number) as
+begin
+select 
+    id_battle,
+    total_starting_units_user,
+    total_remaining_units_user,
+    total_starting_units_enemy,
+    total_remaining_units_enemy,
+    planet_metal_costs,
+    planet_deuterium_costs,
+    enemy_metal_costs,
+    enemy_deuterium_costs,
+    planet_metal_losses,
+    planet_deuterium_losses,
+    enemy_metal_losses,
+    enemy_deuterium_losses,
+    wastings_metal,
+    wastings_deuterium,
+    winner
+into
+    id_bat,
+    inicio_usu,
+    final_usu,
+    inicio_enem,
+    final_enem,
+    cost_metal_usu,
+    cost_deut_usu,
+    cost_metal_enem,
+    cost_deut_enem,
+    loss_metal_usu,
+    loss_deut_usu,
+    loss_metal_enem,
+    loss_deut_enem,
+    waste_metal,
+    waste_deut,
+    ganador
+from battle
+where id_battle = id_bat;
+end;

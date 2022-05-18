@@ -1,0 +1,38 @@
+create or replace procedure add_battle (
+    id_bat in number,
+    id_usu in number,
+    inicio_planeta in number,
+    final_planeta in number,
+    inicio_enemigo in number,
+    final_enemigo in number,
+    coste_metal_planeta in number,
+    coste_deut_planeta in number,
+    coste_metal_enemigo in number,
+    coste_deut_enemigo in number,
+    perdidas_metal_planeta in number,
+    perdidas_deuterium_planeta in number,
+    perdidas_metal_enemigo in number,
+    perdidas_deut_enemigo in number,
+    resto_metal in number,
+    resto_deut in number,
+    ganador in number) as
+begin
+insert into battle values(
+    id_bat,
+    id_usu,
+    inicio_planeta,
+    final_planeta,
+    inicio_enemigo,
+    final_enemigo,
+    coste_metal_planeta,
+    coste_deut_planeta,
+    coste_metal_enemigo,
+    coste_deut_enemigo,
+    perdidas_metal_planeta,
+    perdidas_deuterium_planeta,
+    perdidas_metal_enemigo,
+    perdidas_deut_enemigo,
+    resto_metal,
+    resto_deut,
+    ganador);
+end;
