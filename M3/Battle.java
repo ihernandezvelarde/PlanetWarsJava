@@ -1,17 +1,20 @@
 package PlanetWars;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class Battle implements Variables {
 	private ArrayList<MilitaryUnit>[] planetArmy = new ArrayList[7];
 	private ArrayList<MilitaryUnit>[] enemyArmy = new ArrayList[4];
 	private ArrayList[][] armies = new ArrayList[2][7];
-	private String battleDevelopment;
+	private ArrayList<String> battleDevelopment = new ArrayList<String>();
 	int[][] initialCostFleet = new int[2][2];
 	int initialNumberUnitsPlanet, initialNumberUnitsEnemy;
 	int[] wasteMetalDeuterium = new int[2];
 	int[][] resourcesLosses = new int[2][3];
-	int[][] initialArmies = new int[2][2];
+	int[][] initialArmies = new int[2][7];
 	int[] actualNumberUnitsPlanet = new int[7];
 	int[] actualNumberUnitsEnemy = new int[7];
 	
@@ -21,23 +24,24 @@ public class Battle implements Variables {
 		initVariables(planetArmy, enemyArmy);
 	}
 	
-	// Funcio que retorna la quantitat total d'unitats d'un mateix tipus
-	public int getTotalUnitsSquad(ArrayList<MilitaryUnit> squad) {
-		int total = 0;
-		for (int i = 0; i < squad.size(); i++) {
-			total += squad.get(i).getQuantity();
-		}
-		return total;
-	}
-	
 	// Funcio que retorna la quantitat total d'unitats d'un mateix exercit
 	public int getTotalUnitsFleet(ArrayList<MilitaryUnit>[] fleet) {
 		int total = 0;
 		for (int i = 0; i < fleet.length; i++) {
-			total += getTotalUnitsSquad(fleet[i]);
+			total += fleet[i].size();
 		}
 		return total;
 	}
+	
+	// Funcio que crea una ArrayList a partir dife
+	private ArrayList<MilitaryUnit> initSquad(ArrayList<MilitaryUnit> squad) {
+		ArrayList<MilitaryUnit> returnable = new ArrayList<MilitaryUnit>();
+		for (int i = 0; i < squad.size(); i++) {
+			returnable.add(squad.get(i));
+		}
+		return returnable;
+	}
+	
 	
 	private void initVariables(ArrayList<MilitaryUnit>[] planetInitialArmy, ArrayList<MilitaryUnit>[] enemyInitialArmy) {
 		initialNumberUnitsPlanet = getTotalUnitsFleet(planetInitialArmy);
@@ -49,34 +53,31 @@ public class Battle implements Variables {
 		
 		// Recorre les arrays d'exercits per a comptar el nombre total de tropes (objectes) que hi ha a cada exercit
 		for (int i = 0; i < planetInitialArmy.length; i ++) {
-			initialArmies [0][i] = getTotalUnitsSquad(planetInitialArmy[i]);
-			actualNumberUnitsPlanet[i] = getTotalUnitsSquad(planetInitialArmy[i]);
+			initialArmies [0][i] = planetInitialArmy[i].size();
+			actualNumberUnitsPlanet[i] = planetInitialArmy[i].size();
+			planetArmy[i] = initSquad(planetInitialArmy[i]);
+			armies[0][i] = planetArmy[i];
 			for (int j = 0; j < planetInitialArmy[i].size(); j++) {
-				total_cost_metal_planet += planetInitialArmy[i].get(j).getMetalCost();
-				total_cost_deuterium_planet += planetInitialArmy[i].get(j).getDeuteriumCost();
+				total_cost_metal_planet += METAL_COST_UNITS[i];
+				total_cost_deuterium_planet += DEUTERIUM_COST_UNITS[i];
 			}
-			// Com que l'enemic nomes te naus en el seu exercit, s'emplena la seva fila de la matriu fins a
-			// la columna 7
-			if (i <= 3) {
-				initialArmies [1][i] = getTotalUnitsSquad(enemyInitialArmy[i]);
-				actualNumberUnitsEnemy[i] = getTotalUnitsSquad(enemyInitialArmy[i]);
-				
-				for (int j = 0; j < enemyInitialArmy[i].size(); i++) {
-					total_cost_metal_enemy += enemyInitialArmy[i].get(j).getMetalCost();
-					total_cost_deuterium_enemy += enemyInitialArmy[i].get(j).getDeuteriumCost();
-				}
+		}
+		
+		for (int i = 0; i < enemyInitialArmy.length; i++) {
+			initialArmies[1][i] = enemyInitialArmy[i].size();
+			actualNumberUnitsEnemy[i] = enemyInitialArmy[i].size();
+			enemyArmy[i] = initSquad(enemyInitialArmy[i]);
+			armies[1][i] = enemyArmy[i];
+			for (int j = 0; j < enemyInitialArmy[i].size(); j++) {
+				total_cost_metal_enemy += METAL_COST_UNITS[i];
+				total_cost_deuterium_enemy += DEUTERIUM_COST_UNITS[i];
 			}
-			
+		}
 			initialCostFleet[0][0] = total_cost_metal_planet;
 			initialCostFleet[0][1] = total_cost_deuterium_planet;
 			initialCostFleet[1][0] = total_cost_metal_enemy;
 			initialCostFleet[1][1] = total_cost_deuterium_enemy;
-		}
 		
-		planetArmy = planetInitialArmy;
-		enemyArmy = enemyInitialArmy;
-		armies[0] = planetArmy;
-		armies[1] = enemyArmy;
 		
 		getStartingTurn();
 	}
@@ -94,23 +95,18 @@ public class Battle implements Variables {
 		int attacking_squad = (int) (Math.random()*100);
 		if (turn == 0) {
 			for (int i = 0; i < planetArmy.length; i++) {
+				System.out.println("inicio: " + i);
 				// Es resta la probabilitat d'atacar de cada grup al nombre escollit aleatoriament
 				attacking_squad -= CHANCE_ATTACK_PLANET_UNITS[i];
-				// Si el nombre resultant a la resta es igual o menor a 0, s'escull una tropa aleatoria
+				// Si el nombre resultant a la resta es igual o menor a 0 i n'hi al menys una tropa en el grup, s'escull una tropa aleatoria
 				// entre les de l'ArrayList del grup
-				if (attacking_squad <= 0) {
-					// Es selecciona un nombre aleatori entre 0 i el nombre total d'unitats del mateix tipus
-					int attacker = (int) (Math.random()*getTotalUnitsSquad(planetArmy[i]));
-					for (int j = 0; j < planetArmy[i].size(); i++) {
-						// Es resta la quantitat de tropes de cada nivell al nombre escollit aleatoriament
-						attacker -= planetArmy[i].get(j).getQuantity();
-						// Si el nombre resultant a la resta es igual o menor a 0, s'escull la tropa d'aquest nivell
-						if (attacker <= 0) {
-							return planetArmy[i].get(j);
-						}
-					}
+				if (attacking_squad <= 0 && planetArmy[i].size() > 0) {
+					return planetArmy[i].get((int) (Math.random()*planetArmy[i].size()));
 					
+				} else if (attacking_squad <= 0 && i == planetArmy.length-1) {
+					i = -1;
 				}
+				System.out.println("final: " + i);
 			}
 		} else {
 			for (int i = 0; i < enemyArmy.length; i++) {
@@ -118,16 +114,10 @@ public class Battle implements Variables {
 				attacking_squad -= CHANCE_ATTACK_ENEMY_UNITS[i];
 				// Si el nombre resultant a la resta es igual o menor a 0, s'escull una tropa aleatoria
 				// entre les de l'ArrayList del grup
-				if (attacking_squad <= 0) {
-					int attacker = (int) (Math.random()*getTotalUnitsSquad(planetArmy[i]));
-					for (int j = 0; j < planetArmy[i].size(); i++) {
-						// Es resta la quantitat de tropes de cada nivell al nombre escollit aleatoriament
-						attacker -= enemyArmy[i].get(j).getQuantity();
-						// Si el nombre resultant a la resta es igual o menor a 0, s'escull la tropa d'aquest nivell
-						if (attacker <= 0) {
-							return enemyArmy[i].get(j);
-						}
-					}
+				if (attacking_squad <= 0 && enemyArmy[i].size() > 0) {
+					return enemyArmy[i].get((int) (Math.random()*enemyArmy[i].size()));
+				} else if (attacking_squad <= 0 && i == enemyArmy.length-1) {
+					i = -1;
 				}
 			}
 		}
@@ -142,21 +132,14 @@ public class Battle implements Variables {
 			
 			// S'escull un nombre aleatori entre 0 i el nombre total d'unitats
 			int defending_squad = (int) (Math.random()*totalChances);
-			
+			System.out.println(enemyArmy.length);
 			for (int i = 0; i < enemyArmy.length; i++) {
 				// Es resta la quantitat de cada grup al nombre escollit aleatoriament
-				defending_squad -= getTotalUnitsSquad(enemyArmy[i]);
-				if (defending_squad <= 0) {
-					// S'escull un nombre aleatori entre 0 i el nombre total d'unitats del mateix tipus
-					int defender = (int) (Math.random()*getTotalUnitsSquad(enemyArmy[i]));
-					for (int j = 0; j < enemyArmy[i].size(); i++) {
-						// Es resta la quantitat de tropes de cada nivell al nombre escollit aleatoriament
-						defender -= enemyArmy[i].get(j).getQuantity();
-						// Si el nombre resultant es menor o igual a 0, s'escull la tropa d'aquest nivell
-						if (defender <= 0) {
-							return enemyArmy[i].get(j);
-						}
-					}
+				defending_squad -= enemyArmy[i].size();
+				if (defending_squad <= 0 && enemyArmy[i].size() > 0) {
+					return enemyArmy[i].get((int) (Math.random()*enemyArmy[i].size()));
+				} else if (defending_squad <= 0 && i == enemyArmy.length-1) {
+					i = -1;
 				}
 			}
 			
@@ -169,26 +152,20 @@ public class Battle implements Variables {
 			
 			for (int i = 0; i < planetArmy.length; i++) {
 				// Es resta la quantitat de cada grup al nombre escollit aleatoriament
-				defending_squad -= getTotalUnitsSquad(planetArmy[i]);
-				if (defending_squad <= 0) {
-					// S'escull un nombre aleatori entre 0 i el nombre total d'unitats del mateix tipus
-					int defender = (int) (Math.random()*getTotalUnitsSquad(planetArmy[i]));
-					for (int j = 0; j < planetArmy[i].size(); i++) {
-						// Es resta la quantitat de tropes de cada nivell al nombre escollit aleatoriament
-						defender -= planetArmy[i].get(j).getQuantity();
-						// Si el nombre resultant es menor o igual a 0, s'escull la tropa d'aquest nivell
-						if (defender <= 0) {
-							return planetArmy[i].get(j);
-						}
-					}
+				defending_squad -= planetArmy[i].size();
+				if (defending_squad <= 0 && planetArmy[i].size() > 0) {
+					return planetArmy[i].get((int) (Math.random()*planetArmy[i].size()));
+				} else if (defending_squad <= 0 && i == planetArmy.length-1) {
+					i = -1;
 				}
 			}
 		}
 		return null;
 	}
 	
+	// Retorna el missatge d'accio amb l'atac i els dels metodes GenerateWastings i LoseShip
 	private String attack(MilitaryUnit attacker, MilitaryUnit defender) {
-		String message = attacker.getClass().getSimpleName() + " attacks " + defender.getClass();
+		String message = attacker.getClass().getSimpleName() + " attacks " + defender.getClass().getSimpleName();
 		int dmg = attacker.attack();
 		message += "\n" + attacker.getClass().getSimpleName() + " deals " + dmg + " damage";
 		defender.takeDamage(dmg);
@@ -196,25 +173,53 @@ public class Battle implements Variables {
 		
 		if (defender.getActualArmor() <= 0) {
 			int chance_waste = (int) (Math.random()*100);
-			if ((defender instanceof LightHunter && chance_waste <= CHANCE_GENERATNG_WASTE_LIGTHHUNTER) ||
-					(defender instanceof HeavyHunter && chance_waste <= CHANCE_GENERATNG_WASTE_HEAVYHUNTER) ||
-					(defender instanceof BattleShip && chance_waste <= CHANCE_GENERATNG_WASTE_BATTLESHIP) ||
-					(defender instanceof ArmoredShip && chance_waste <= CHANCE_GENERATNG_WASTE_ARMOREDSHIP) ||
-					(defender instanceof MissileLauncher && chance_waste <= CHANCE_GENERATNG_WASTE_MISSILELAUNCHER) ||
-					(defender instanceof IonCannon && chance_waste <= CHANCE_GENERATNG_WASTE_IONCANNON) ||
-					(defender instanceof PlasmaCannon && chance_waste <= CHANCE_GENERATNG_WASTE_PLASMACANNON)) {
-				wasteMetalDeuterium[0] = defender.getMetalCost()*PERCENTATGE_WASTE;
-				wasteMetalDeuterium[1] = defender.getDeuteriumCost()*PERCENTATGE_WASTE;
-				message += "\n" + loseShip(defender);
-			}	
+			int type;
+			switch (defender.getClass().getSimpleName()) {
+				case "LightHunter":
+					type = 0;
+					break;
+				case "HeavyHunter":
+					type = 1;
+					break;
+				case "BattleShip":
+					type = 2;
+					break;
+				case "ArmoredShip":
+					type = 3;
+					break;
+				case "MissileLauncher":
+					type = 4;
+					break;
+				case "IonCannon":
+					type = 5;
+					break;
+				default:
+					type = 6;
+					break;
+			}
+			
+			message += "\n" + loseShip(defender, type);
+			if (chance_waste <= CHANCE_GENERATNG_WASTE_LIGTHHUNTER && type == 0) {
+				message += "\n" + generateWastings(type); 
+			} else if (chance_waste <= CHANCE_GENERATNG_WASTE_HEAVYHUNTER && type == 1) {
+				message += "\n" + generateWastings(type); 
+			} else if (chance_waste <= CHANCE_GENERATNG_WASTE_BATTLESHIP && type == 2) {
+				message += "\n" + generateWastings(type); 
+			} else if (chance_waste <= CHANCE_GENERATNG_WASTE_ARMOREDSHIP && type == 3) {
+				message += "\n" + generateWastings(type); 
+			} else if (chance_waste <= CHANCE_GENERATNG_WASTE_MISSILELAUNCHER && type == 4) {
+				message += "\n" + generateWastings(type); 
+			} else if (chance_waste <= CHANCE_GENERATNG_WASTE_IONCANNON && type == 5) {
+				message += "\n" + generateWastings(type); 
+			} else if (chance_waste <= CHANCE_GENERATNG_WASTE_PLASMACANNON && type == 6) {
+				message += "\n" + generateWastings(type); 
+			}
 			
 		}
-		
-		
 		return message;
 	}
 	
-	
+	// retorna 1 si ha guanyat planeta, 2 si ha guanyat l'enemic i 0 si no ha guanyat cap encara (per a continuar)
 	public int getWinner() {
 		if (getTotalUnitsFleet(planetArmy) < initialNumberUnitsPlanet*0.2 || getTotalUnitsFleet(enemyArmy) < initialNumberUnitsPlanet*0.2) {
 			if (resourcesLosses[0][2] < resourcesLosses[1][2]) {
@@ -226,86 +231,149 @@ public class Battle implements Variables {
 	}
 	
 	
-	public String loseShip(MilitaryUnit ship) {
-		resourcesLosses[turn][0] += ship.getMetalCost();
-		resourcesLosses[turn][1] += ship.getDeuteriumCost();
-		resourcesLosses[turn][2] += ship.getMetalCost() + 5*ship.getDeuteriumCost();
-		int type = 0;
-		switch (ship.getClass().getSimpleName()) {
-			case "LightHunter:":
-				type = 0;
-				break;
-			case "HeavyHunter":
-				type = 1;
-				break;
-			case "BattleShip":
-				type = 2;
-				break;
-			case "ArmoredShip":
-				type = 3;
-				break;
-			case "MissileLauncher":
-				type = 4;
-				break;
-			case "IonCannon":
-				type = 5;
-				break;
-			case "PlasmaCannon":
-				type = 6;
-				break;
-		}
+	// genera residus i retorna el missatge corresponent
+	public String generateWastings(int type) {
+		wasteMetalDeuterium[0] = METAL_COST_UNITS[type]*PERCENTATGE_WASTE/100;
+		wasteMetalDeuterium[1] = DEUTERIUM_COST_UNITS[type]*PERCENTATGE_WASTE/100;
+		return METAL_COST_UNITS[type]*PERCENTATGE_WASTE/100 + " Metal and " + DEUTERIUM_COST_UNITS[type]*PERCENTATGE_WASTE/100 + " generated as Wastings";
+	}
+	
+	// elimina una nau i retorna un missatge corresponent
+	public String loseShip(MilitaryUnit ship, int type) {
+		resourcesLosses[turn][0] += METAL_COST_UNITS[type];
+		resourcesLosses[turn][1] += DEUTERIUM_COST_UNITS[type];
+		resourcesLosses[turn][2] += METAL_COST_UNITS[type] + 5*DEUTERIUM_COST_UNITS[type];
+		
 		if (turn == 0) {
-			if (ship.getQuantity() > 1) {
-				ship.setQuantity(ship.getQuantity() - 1);
-				ship.resetArmor();
-			} else {
-				planetArmy[type].remove(ship);
-			}
-				actualNumberUnitsPlanet[type] -= 1;
-		} else {
-			if (ship.getQuantity() > 1) {
-				ship.setQuantity(ship.getQuantity() - 1);
-				ship.resetArmor();
-			} else {
 				enemyArmy[type].remove(ship);
-			}
-			actualNumberUnitsEnemy[type] -= 1;
+				System.out.println(actualNumberUnitsEnemy);
+				actualNumberUnitsEnemy[type] -= 1;
+				System.out.println(actualNumberUnitsEnemy);
+		} else {
+				planetArmy[type].remove(ship);
+				actualNumberUnitsPlanet[type] -= 1;
 		}
 		
 		return ship.getClass().getSimpleName() + " has been destroyed";
 	}
 	
+	
 	public String startBattle() {
-		String msg;
+		String msg = "\n\n" + "****************************** START BATTLE ******************************" + "\n";
 		if (turn == 0) {
-			msg = "Planet attacks: " + "\n";
+			msg += "Planet attacks: " + "\n";
 		} else {
-			msg = "Enemy Fleet attacks: " + "\n";
+			msg += "Enemy Fleet attacks: " + "\n";
 		}
 		MilitaryUnit attacker = getAttacker();
 		MilitaryUnit defender = getDefender();
 		
 		msg += attack(attacker, defender);
-		battleDevelopment = msg;
+		battleDevelopment.add(msg);
+		
+		if (turn == 0) {
+			turn = 1;
+		} else {
+			turn = 0;
+		}
 		
 		return msg;
 	}
 	
 	public String continueBattle() {
-		String msg;
+		String msg = "\n\n" + "***************************** CHANGE ATTACKER ****************************" + "\n";
 		if (turn == 0) {
-			msg = "Planet attacks: " + "\n";
+			msg += "Planet attacks: " + "\n";
 		} else {
-			msg = "Enemy Fleet attacks: " + "\n";
+			msg += "Enemy Fleet attacks: " + "\n";
 		}
 		MilitaryUnit attacker = getAttacker();
 		MilitaryUnit defender = getDefender();
 		
 		msg += attack(attacker, defender);
-		battleDevelopment = msg;
+		battleDevelopment.add(msg);
+		
+		if (turn == 0) {
+			turn = 1;
+		} else {
+			turn = 0;
+		}
+		
 		return msg;
 	}
 	
+	// guarda totes les dades a les taules Battle, Battle_step, Battle_has_ships i Battle_has_defenses de la bbdd
+	public void saveBattleData(Connection con, int idUser) {
+		try {
+			System.out.println(idUser);
+			CallableStatement get_id = con.prepareCall("{call get_battleid (?)}");
+			get_id.registerOutParameter(1, java.sql.Types.VARCHAR);
+			get_id.execute();
+			int id = get_id.getInt(1);
+			
+			CallableStatement add_battle = con.prepareCall("{call add_battle (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
+			add_battle.setInt(1,  id);
+			add_battle.setInt(2,  idUser);
+			add_battle.setInt(3,  initialNumberUnitsPlanet);
+			add_battle.setInt(4,  getTotalUnitsFleet(planetArmy));
+			add_battle.setInt(5,  initialNumberUnitsEnemy);
+			add_battle.setInt(6,  getTotalUnitsFleet(enemyArmy));
+			add_battle.setInt(7,  initialCostFleet[0][0]);
+			add_battle.setInt(8,  initialCostFleet[0][1]);
+			add_battle.setInt(9,  initialCostFleet[1][0]);
+			add_battle.setInt(10, initialCostFleet[1][1]);
+			add_battle.setInt(11, resourcesLosses[0][0]);
+			add_battle.setInt(12, resourcesLosses[0][1]);
+			add_battle.setInt(13, resourcesLosses[1][0]);
+			add_battle.setInt(14, resourcesLosses[1][1]);
+			add_battle.setInt(15, wasteMetalDeuterium[0]);
+			add_battle.setInt(16, wasteMetalDeuterium[1]);
+			add_battle.setInt(17, getWinner());
+			add_battle.execute();
+			
+			CallableStatement add_ship = con.prepareCall("{call add_ship_battle (?, ?, ?, ?, ?)}");
+			CallableStatement add_defenses = con.prepareCall("{call add_defense_battle (?, ?, ?, ?, ?)}");
+			add_ship.setInt(1, id);
+			add_defenses.setInt(1, id);
+			
+			for (int i = 0; i < enemyArmy.length; i++) {
+				
+				add_ship.setInt(2, i+1);
+				add_ship.setInt(3, initialArmies[0][i]);
+				add_ship.setInt(4, actualNumberUnitsPlanet[i]);
+				add_ship.setInt(5, 0);
+				
+				add_ship.execute();
+				
+				add_ship.setInt(3, initialArmies[1][i]);
+				add_ship.setInt(4, actualNumberUnitsEnemy[i]);
+				add_ship.setInt(5, 1);
+				
+				add_ship.execute();
+			}
+			
+			for (int i = 4; i < planetArmy.length; i++) {
+				
+				add_defenses.setInt(2, i-3);
+				add_defenses.setInt(3, initialArmies[0][i]);
+				add_defenses.setInt(4, actualNumberUnitsPlanet[i]);
+				add_defenses.setInt(5, 0);
+				add_defenses.execute();
+				
+			}
+			
+			CallableStatement add_step = con.prepareCall("{call add_battle_step (?, ?, ?)}");
+			for (int i = 0; i < battleDevelopment.size(); i++) {
+				add_step.setInt(1, id);
+				add_step.setInt(2, i+1);
+				add_step.setString(3, battleDevelopment.get(i));
+				add_step.execute();
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 	
 	public int getTurn() {
@@ -338,14 +406,6 @@ public class Battle implements Variables {
 
 	public void setArmies(ArrayList[][] armies) {
 		this.armies = armies;
-	}
-
-	public String getBattleDevelopment() {
-		return battleDevelopment;
-	}
-
-	public void setBattleDevelopment(String battleDevelopment) {
-		this.battleDevelopment = battleDevelopment;
 	}
 
 	public int[][] getInitialCostFleet() {

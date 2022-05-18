@@ -2,6 +2,7 @@ package PlanetWars;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,8 +18,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 
 
 
@@ -43,6 +46,8 @@ public class ReportScreen extends JPanel {
 	
 	int[] starting_units_enemy = new int[4];
 	int[] final_units_enemy = new int[4];
+	
+	JScrollPane scroll;
 	
 	public ReportScreen(Connection con) {
 		
@@ -71,7 +76,13 @@ public class ReportScreen extends JPanel {
 		// textarea per a mostrar els reports
 		terminal = new JTextArea();
 		terminal.setEditable(false);
-		terminal.setPreferredSize(new Dimension(750, 500));
+		terminal.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
+		terminal.setBackground(Color.BLACK);
+		terminal.setForeground(Color.GREEN);
+		
+		// textarea terminal amb una barra de scroll
+		scroll = new JScrollPane(terminal);
+		scroll.setPreferredSize(new Dimension(750, 500));
 		
 		this.setBackground(new Color(0, 0, 0, 0));
 		panel1.setBackground(new Color(0, 0, 0, 0));
@@ -142,7 +153,7 @@ public class ReportScreen extends JPanel {
 		
 		// s'aniden els panels i s'afageixen a la finestra
 		panel1.add(panel2);
-		panel1.add(terminal);
+		panel1.add(scroll);
 		panel2.add(label_bat);
 		panel2.add(id_bat);
 		panel2.add(panel3);
@@ -155,28 +166,31 @@ public class ReportScreen extends JPanel {
 	}
 	
 	private String getSummary(int id_battle) {
-		String msg = (
+		String msg = ("\n" +
 				"BATTLE ID: " + id_battle + "\n" + 
 				"BATTLE STATISTICS" + "\n\n" + 
-				"Planet Army" + "          " /*10*/ + "Starting Units" + "     " /*5*/ + "Remaining Units" + "     " /*5*/ + "Enemy Army" + "          " /*10*/ + "Units" + "     " /*5*/ + "Cost" + "\n" +
-				"Light Hunter" + "          " + starting_units_planet[0] + "     " + final_units_planet[0] + "     " + "Light Hunter" + "          " + starting_units_enemy[0] + "     " + final_units_enemy[0] + "\n" +
-				"Heavy Hunter" + "          " + starting_units_planet[1] + "     " + final_units_planet[1] + "     " + "Heavy Hunter" + "          " + starting_units_enemy[1] + "     " + final_units_enemy[1] + "\n" +
-				"Battle Ship" + "          " + starting_units_planet[2] + "     " + final_units_planet[2] + "     " + "Battle Ship" + "          " + starting_units_enemy[2] + "     " + final_units_enemy[2] + "\n" +
-				"Armored Ship" + "          " + starting_units_planet[3] + "     " + final_units_planet[3] + "     " + "Armored Ship" + "          " + starting_units_enemy[3] + "     " + final_units_enemy[3] + "\n" +
-				"Missile Launcher" + "          " + starting_units_planet[4] + "     " + final_units_planet[4] + "\n" +
-				"Ion Cannon" + "          " + starting_units_planet[5] + "     " + final_units_planet[5] + "\n" +
-				"Plasma Cannon" + "          " + starting_units_planet[6] + "     " + final_units_planet[6] + "\n" +
-				"TOTAL" + "          " + total_starting_units_planet + "     " + total_final_units_planet + "     " + "TOTAL" + "          " + total_starting_units_enemy + "     " + total_final_units_enemy + "\n" +
-				"****************************************************************************************************************" + "\n" +
-				"Planet Army's Costs" + "                    " /*20*/ + "Enemy Army's Costs" + "\n" +
-				"Metal: " + planet_metal_costs + "                    " + "Metal: " + enemy_metal_costs + "\n" +
-				"Deuterium: " + planet_deuterium_costs + "                    " + "Deuterium: " + enemy_deuterium_costs + "\n" +
-				"****************************************************************************************************************" + "\n" +
-				"Planet Army's Losses" + "                    " + "Enemy Army's Losses" + "\n" + 
-				"Metal: " + planet_metal_losses + "                    " + "Metal: " + enemy_metal_losses + "\n" +
-				"Deuterium: " + planet_deuterium_losses + "                    " + "Deuterium: " + enemy_deuterium_losses + "\n" +
-				"Weighted: " + (planet_metal_losses + planet_deuterium_losses*5) + "                    " + "Weighted: " + (enemy_metal_losses + enemy_deuterium_losses*5) + "\n" + 
-				"****************************************************************************************************************" + "\n" +
+				"Planet Army"      + repetirChar(20-"Planet Army".length(), ' ')      + "Starting Units"            + repetirChar(15-"Starting Units".length(), ' ')                            + "Remaining Units"         + repetirChar(20-"Remaining Units".length(), ' ')                       + "Enemy Army"   + repetirChar(20-"Enemy Army".length(), ' ')   + "Starting Units"           + repetirChar(15-"Starting Units".length(), ' ')                        + "Remaining Units"    + "\n" +
+				"Light Hunter"     + repetirChar(20-"Light Hunter".length(), ' ')     + starting_units_planet[0]    + repetirChar(15-String.valueOf(starting_units_planet[0]).length(), ' ')    + final_units_planet[0]    + repetirChar(20-String.valueOf(final_units_planet[0]).length(), ' ')    + "Light Hunter" + repetirChar(20-"Light Hunter".length(), ' ') + starting_units_enemy[0]    + repetirChar(15-String.valueOf(starting_units_enemy[0]).length(), ' ') + final_units_enemy[0] + "\n" +
+				"Heavy Hunter"     + repetirChar(20-"Heavy Hunter".length(), ' ')     + starting_units_planet[1]    + repetirChar(15-String.valueOf(starting_units_planet[1]).length(), ' ')    + final_units_planet[1]    + repetirChar(20-String.valueOf(final_units_planet[1]).length(), ' ')    + "Heavy Hunter" + repetirChar(20-"Heavy Hunter".length(), ' ') + starting_units_enemy[1]    + repetirChar(15-String.valueOf(starting_units_enemy[1]).length(), ' ') + final_units_enemy[1] + "\n" +
+				"Battle Ship"      + repetirChar(20-"Battle Ship".length(), ' ')      + starting_units_planet[2]    + repetirChar(15-String.valueOf(starting_units_planet[2]).length(), ' ')    + final_units_planet[2]    + repetirChar(20-String.valueOf(final_units_planet[2]).length(), ' ')    + "Battle Ship"  + repetirChar(20-"Battle Ship".length(), ' ')  + starting_units_enemy[2]    + repetirChar(15-String.valueOf(starting_units_enemy[2]).length(), ' ') + final_units_enemy[2] + "\n" +
+				"Armored Ship"     + repetirChar(20-"Armored Ship".length(), ' ')     + starting_units_planet[3]    + repetirChar(15-String.valueOf(starting_units_planet[3]).length(), ' ')    + final_units_planet[3]    + repetirChar(20-String.valueOf(final_units_planet[3]).length(), ' ')    + "Armored Ship" + repetirChar(20-"Armored Ship".length(), ' ') + starting_units_enemy[3]    + repetirChar(15-String.valueOf(starting_units_enemy[3]).length(), ' ') + final_units_enemy[3] + "\n" +
+				"Missile Launcher" + repetirChar(20-"Missile Launcher".length(), ' ') + starting_units_planet[4]    + repetirChar(15-String.valueOf(starting_units_planet[4]).length(), ' ')    + final_units_planet[4]    + "\n" +
+				"Ion Cannon"       + repetirChar(20-"Ion Cannon".length(), ' ')       + starting_units_planet[5]    + repetirChar(15-String.valueOf(starting_units_planet[5]).length(), ' ')    + final_units_planet[5]    + "\n" +
+				"Plasma Cannon"    + repetirChar(20-"Plasma Cannon".length(), ' ')    + starting_units_planet[6]    + repetirChar(15-String.valueOf(starting_units_planet[6]).length(), ' ')    + final_units_planet[6]    + "\n" +
+				"TOTAL"            + repetirChar(20-"TOTAL".length(), ' ')            + total_starting_units_planet + repetirChar(15-String.valueOf(total_starting_units_planet).length(), ' ') + total_final_units_planet + repetirChar(20-String.valueOf(total_final_units_planet).length(), ' ') + "TOTAL"        + repetirChar(20-"TOTAL".length(), ' ')        + total_starting_units_enemy + repetirChar(15-String.valueOf(total_starting_units_enemy).length(), ' ') + total_final_units_enemy + "\n" +
+				
+				repetirChar(106, '*') + "\n" +
+				"Planet Army's Costs"                  + repetirChar(55-"Planet Army's Costs".length(), ' ')                    + "Enemy Army's Costs" + "\n" +
+				"Metal: "     + planet_metal_costs     + repetirChar(55-("Metal: " + planet_metal_costs).length(), ' ')         + "Metal: " + enemy_metal_costs + "\n" +
+				"Deuterium: " + planet_deuterium_costs + repetirChar(55-("Deuterium: " + planet_deuterium_costs).length(), ' ') + "Deuterium: " + enemy_deuterium_costs + "\n" +
+				
+				repetirChar(106, '*') + "\n" +
+				"Planet Army's Losses"                                            + repetirChar(55-"Planet Army's Losses".length(), ' ')                                          + "Enemy Army's Losses" + "\n" + 
+				"Metal: "     + planet_metal_losses                               + repetirChar(55-("Metal: " + planet_metal_losses).length(), ' ')                               + "Metal: "             + enemy_metal_losses + "\n" +
+				"Deuterium: " + planet_deuterium_losses                           + repetirChar(55-("Deuterium: " + planet_deuterium_losses).length(), ' ')                           + "Deuterium: "         + enemy_deuterium_losses + "\n" +
+				"Weighted: "  + (planet_metal_losses + planet_deuterium_losses*5) + repetirChar(55-("Weighted: " + (planet_metal_losses + planet_deuterium_losses*5)).length(), ' ') + "Weighted: "          + (enemy_metal_losses + enemy_deuterium_losses*5) + "\n" + 
+				
+				repetirChar(106, '*') + "\n" +
 				"Wastings Generated" + "\n" +
 				"Metal: " + metal_wastings + "\n" +
 				"Deuterium: " + deuterium_wastings + "\n\n"
@@ -189,6 +203,13 @@ public class ReportScreen extends JPanel {
 		return msg;
 	}
 	
+	// retorna un string que es el caracter multiplicat per les repeticions (similar a ljust en python)
+	private String repetirChar(int repeticiones, char caracter) {
+		String msg = new String(new char[repeticiones]).replace('\0', caracter);
+		return msg;
+	}
+	
+	// extreu les naus i defenses que han participat en la batalla a buscar a partir de la base de dades
 	private void setUnits(int id_battle, int index) {
 		try {
 			CallableStatement cst1 = con.prepareCall("{call get_ship_battle (?, ?, ?, ?, ?)}");
@@ -231,6 +252,7 @@ public class ReportScreen extends JPanel {
 		}
 	}
 	
+	// extreu de la base de dades les variables necesaries per al report
 	private void setVariables(int id_batalla) {
 		try {
 			CallableStatement cst = con.prepareCall("{call SHOW_REPORT (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
@@ -271,6 +293,7 @@ public class ReportScreen extends JPanel {
 		
 	}
 	
+	// extreu de la base de dades el desenvolupament de la batalla a buscar
 	private void setCompleteReport(int id_batalla) {
 		try {
 			CallableStatement cst = con.prepareCall("{call GET_STEP_AMOUNT (?, ?)}");
@@ -282,9 +305,10 @@ public class ReportScreen extends JPanel {
 			cst.execute();
 			System.out.println("a");
 			String msg = "";
-			
 			int num_steps = cst.getInt(2);
+			cst.close();
 			for (int i = 1; i <= num_steps; i++) {
+				
 				cst = con.prepareCall("{call GETBATTLESTEP (?, ?, ?)}");
 				cst.setInt(1, id_batalla);
 				cst.setInt(2, i);
@@ -293,6 +317,7 @@ public class ReportScreen extends JPanel {
 				cst.execute();
 				
 				msg += "\n" + cst.getString(3);
+				cst.close();
 			}
 			
 			complete_rep = msg;
@@ -303,7 +328,6 @@ public class ReportScreen extends JPanel {
 		
 	}
 }
-
 
 
 
